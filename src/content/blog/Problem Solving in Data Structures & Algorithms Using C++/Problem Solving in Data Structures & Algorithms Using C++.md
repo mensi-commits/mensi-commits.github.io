@@ -45,3 +45,39 @@ pointer to the first node of the list. The link portion of the last node contain
 address of the first node.
 
 ![Alt Text](src/content/blog/images/assets/posts/dsa-algorithms-cpp/linked-list/3.png)
+
+## Singly Linked List
+
+```cpp
+class LinkedList
+{
+private:
+struct Node
+{
+int value;
+Node *next;
+Node(int v, Node *n);
+Node(int v);
+};
+Node *head;
+int list_size;
+public:
+virtual int size();
+virtual bool isEmpty();
+virtual int peek();
+virtual void addHead(int value);
+virtual int removeHead();
+// Other linked list methods.
+};
+LinkedList::Node::Node(int v, Node *n)
+{
+value = v;
+next = n;
+}
+LinkedList::Node::Node(int v)
+{
+value = v;
+next = nullptr;
+}
+
+```
