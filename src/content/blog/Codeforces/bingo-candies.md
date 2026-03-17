@@ -14,36 +14,47 @@ maths: true
 
 ## **Problem Summary**
 
-Alice has an ( $n \times n$ ) board filled with colored candies. Each cell contains a candy of some color ( a\_{i,j} ). Bob wants to know if he can **rearrange the candies** so that **no row or column has all candies of the same color**.
+Alice has an $n \times n$ board filled with colored candies. Each cell contains a candy of some color $a_{i,j}$. Bob wants to know if he can **rearrange the candies** so that **no row or column has all candies of the same color**.
 
 We are given multiple test cases, and for each, we need to determine if such a rearrangement is possible.
 
 **Constraints:**
 
-- ( $1 \le t \le 500$ ) test cases
-- ( $1 \le n \le 100$ ) (sum of all ( n ) ≤ 500)
-- Colors are integers from 1 to ( $n^2$ )
+- $1 \le t \le 500$ test cases
+- $1 \le n \le 100$ (sum of all $n \le 500$)
+- Colors are integers from 1 to $n^2$
 
 **Output:**
 Print `"YES"` if a valid rearrangement exists, `"NO"` otherwise.
 
 ---
 
-## **Initial Thoughts**
+## **Observations**
 
-The problem can be simplified as:
+Let $x$ be the color with the **maximum number of candies**, denoted $a$.
 
-> Is it possible to rearrange the candies so that **no row or column contains identical candies**?
+**Key observation:**
 
-Observations:
+- The answer is **YES** if and only if $a \le n^2 - n$.
+- If $a > n^2 - n$, there are fewer than $n$ candies of other colors. With $n$ rows, at least one row will be filled entirely with color $x$ → violates the rules.
+- If $a \le n^2 - n$, we can always construct a valid board (proof below).
 
-1. **If any candy appears more than ( n ) times**, it is impossible to avoid a row or column of the same color.
+---
 
-   - Why? Because even if we spread them optimally, at least one row or column will end up fully occupied by that color.
+## **Construction Idea**
 
-2. **If all colors appear ≤ ( n ) times**, then we can always rearrange them so that no row or column is uniform.
+1. **If $a < n$**:
 
-So the problem reduces to **counting the occurrences of each color**.
+   - No color has enough candies to fill a row or column.
+   - We can arrange candies arbitrarily.
+
+2. **Otherwise, $n \le a \le n^2 - n$**:
+
+   - Place $n$ candies of color $x$ along the main diagonal: $a*{1,1}, a*{2,2}, ..., a\_{n,n}$.
+   - Take $n$ candies not of color $x$ and place them along the “wrap-around diagonal”: $a*{1,2}, a*{2,3}, ..., a*{n-1,n}, a*{n,1}$.
+   - Place the remaining candies arbitrarily.
+
+**Result:** Each row and column contains at least **two colors**, satisfying the constraints.
 
 ---
 
@@ -51,18 +62,18 @@ So the problem reduces to **counting the occurrences of each color**.
 
 ![Alt text](src/content/blog/images/assets/posts/codeforces/bingo-candies/3.png)
 
-1. **Read input** for ( t ) test cases.
+1. Read input for $t$ test cases.
 2. For each test case:
 
    - Count the frequency of each color.
-   - If any color occurs more than ( n ) times → `NO`.
+   - If any color appears more than $n^2 - n$ → `NO`.
    - Otherwise → `YES`.
 
 ---
 
 ### **Example Walkthrough**
 
-**Input Example:**
+**Input:**
 
 ```
 3
@@ -80,14 +91,9 @@ So the problem reduces to **counting the occurrences of each color**.
 1 1 2
 ```
 
-**Test case 1:**
-No color exceeds 3 times → `YES`.
-
-**Test case 2:**
-Color 1 appears exactly 3 times (row 1 has all 1's) → can rearrange → `YES`.
-
-**Test case 3:**
-Color 1 appears 7 times (>3) → cannot rearrange → `NO`.
+- **Test case 1:** Max frequency ≤ 6 → `YES`.
+- **Test case 2:** Max frequency ≤ 6 → `YES`.
+- **Test case 3:** Color 1 appears 7 (>6) → `NO`.
 
 ---
 
@@ -105,7 +111,7 @@ for _ in range(t):
         for val in row:
             freq[val] = freq.get(val, 0) + 1
 
-    if max(freq.values()) > n:
+    if max(freq.values()) > n * n - n:
         print("NO")
     else:
         print("YES")
@@ -113,22 +119,23 @@ for _ in range(t):
 
 **Explanation:**
 
-- We count the occurrences of each color using a dictionary.
-- If any color appears more than `n` times, we print `"NO"`.
-- Otherwise, `"YES"` is printed.
+- Count occurrences of each color.
+- If any color appears more than $n^2 - n$, print `"NO"`.
+- Otherwise, print `"YES"`.
 
 ---
 
 ## **Complexity Analysis**
 
-- **Time complexity:** ( $O(t \cdot n^2)$ ) → each board cell is visited once.
-- **Space complexity:** ( $O(n^2)$ ) → for storing frequency of colors.
-- Fits comfortably under the given constraints.
+- **Time complexity:** $O(t \cdot n^2)$ → each board cell is visited once.
+- **Space complexity:** $O(n^2)$ → for storing frequency of colors.
+
+Efficient under given constraints.
 
 ---
 
 ## **Takeaways**
 
-- Sometimes, **a constructive problem reduces to a counting problem**.
-- Always check **frequency constraints** first before attempting complex rearrangements.
-- This approach avoids unnecessary brute force permutations, making the solution efficient and elegant.
+- This constructive problem **reduces to a counting problem**.
+- Always check **frequency limits** before attempting complex arrangements.
+- Simple counting avoids unnecessary brute-force and gives an elegant solution.
