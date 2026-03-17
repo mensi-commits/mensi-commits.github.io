@@ -1,9 +1,10 @@
 ---
-title: 'Bingo Candies'
+title: 'Bingo Candies – Codeforces Round 1086 (Div. 2) Writeup'
 description: 'Bingo Candies Problem from Codeforces'
 date: 2026-03-17T14:25:00+01:00
 tags: ['codeforces', 'competitive programming']
 authors: ['mensi']
+image: ../images/bingo-candies.png
 draft: false
 maths: true
 ---
@@ -50,8 +51,8 @@ Let $x$ be the color with the **maximum number of candies**, denoted $a$.
 
 2. **Otherwise, $n \le a \le n^2 - n$**:
 
-   - Place $n$ candies of color $x$ along the main diagonal: $a*{1,1}, a*{2,2}, ..., a\_{n,n}$.
-   - Take $n$ candies not of color $x$ and place them along the “wrap-around diagonal”: $a*{1,2}, a*{2,3}, ..., a*{n-1,n}, a*{n,1}$.
+   - Place $n$ candies of color $x$ along the main diagonal: $a_{1,1}, a_{2,2}, ..., a_{n,n}$.
+   - Take $n$ candies not of color $x$ and place them along the “wrap-around diagonal”: $a_{1,2}, a_{2,3}, ..., a_{n-1,n}, a_{n,1}$.
    - Place the remaining candies arbitrarily.
 
 **Result:** Each row and column contains at least **two colors**, satisfying the constraints.
