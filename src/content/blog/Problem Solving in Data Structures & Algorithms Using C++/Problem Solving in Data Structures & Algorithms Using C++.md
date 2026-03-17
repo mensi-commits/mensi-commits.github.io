@@ -30,3 +30,10 @@ The link portion of node contains the address of the next node. The link portion
 of the last node contains the value null.
 
 ![Alt Text](src/content/blog/images/assets/posts/dsa-algorithms-cpp/linked-list/1.png)
+
+### Doubly Linked list
+
+The node in this type of linked list has pointer to both previous and the next node
+in the list.
+
+![Alt Text](src/content/blog/images/assets/posts/dsa-algorithms-cpp/linked-list/2.png)
