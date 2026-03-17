@@ -1,0 +1,21 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { Content } from '../content/about.mdx'
+---
+
+<Layout>
+  <PageHead slot="head" title="About" />
+  <div class="mx-auto w-full max-w-[calc(var(--container-3xl)-2rem)]">
+    <Breadcrumbs items={[{ label: 'About', icon: 'lucide:info' }]} />
+  </div>
+
+  <section class="flex flex-col gap-4">
+    <div class="mx-auto max-w-[calc(var(--container-3xl)-2rem)]">
+      <article class="prose">
+        <Content />
+      </article>
+    </div>
+  </section>
+</Layout>
