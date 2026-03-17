@@ -37,3 +37,11 @@ The node in this type of linked list has pointer to both previous and the next n
 in the list.
 
 ![Alt Text](src/content/blog/images/assets/posts/dsa-algorithms-cpp/linked-list/2.png)
+
+### Circular Linked List
+
+This type is similar to the singly linked list except that the last element have
+pointer to the first node of the list. The link portion of the last node contains the
+address of the first node.
+
+![Alt Text](src/content/blog/images/assets/posts/dsa-algorithms-cpp/linked-list/3.png)
