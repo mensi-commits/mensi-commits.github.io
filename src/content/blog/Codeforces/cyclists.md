@@ -23,9 +23,9 @@ We are given multiple test cases. For each, we must determine the **maximum time
 
 **Constraints**:
 
-- (1 \le t \le 5000) test cases
-- (1 \le k, p \le n \le 5000), (1 \le m \le 5000)
-- (1 \le a_i \le m) (cost of each card)
+- $1 \le t \le 5000$ test cases
+- $1 \le k, p \le n \le 5000$, $1 \le m \le 5000$
+- $1 \le a_i \le m$ (cost of each card)
 - Sum of n over all test cases ≤ 5000
 
 **Output**: For each test case, print **one integer**, the maximum times the win-condition card can be played.
@@ -147,8 +147,8 @@ for _ in range(t):
 
 ### Complexity Analysis
 
-- **Time complexity**: (O(t \cdot n \cdot k)) in worst case, since we check the first k cards repeatedly.
-- **Space complexity**: (O(n)) per test case.
+- **Time complexity**: $O(t \cdot n \cdot k)$ in worst case, since we check the first k cards repeatedly.
+- **Space complexity**: $O(n)$ per test case.
 
 Given constraints, this simulation is efficient enough.
 
