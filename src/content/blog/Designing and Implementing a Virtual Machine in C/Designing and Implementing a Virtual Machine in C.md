@@ -64,23 +64,7 @@ At the end of the day, everything comes down to a loop.
 
 Load the bytecode, read the next instruction, execute it, update the machine, and repeat.
 
-```mermaid
-sequenceDiagram
-    participant Dev as Programmer
-    participant ASM as tasm
-    participant RT as tire
-    participant VM as Machine
-
-    Dev->>ASM: write and assemble .tasm
-    ASM-->>Dev: produce .tim bytecode
-    Dev->>RT: run program
-    RT->>VM: initialize machine
-    loop fetch / decode / execute
-        VM->>VM: process instruction
-        VM->>VM: update stack, registers, memory
-    end
-    VM-->>Dev: program ends
-```
+![Alt text](src/content/blog/images/assets/posts/VM-design-and-implement/4.png)
 
 There’s nothing fancy about the loop itself. The interesting part is everything it touches. Every instruction changes the state in some way, and over time those changes produce the behavior of the program.
 
@@ -102,10 +86,3 @@ Once those pieces are in place, everything else is incremental.
 TIM is still a small project, but it already behaves like a real machine. It has its own instruction set, its own execution model, and its own way of interacting with the outside world through native functions.
 
 And more importantly, it’s something I can read, modify, and fully understand.
-
----
-
-If you want, I can next:
-
-- make it more **story-driven (like a dev journey post)**
-- or more **technical (deep dive into instruction decoding, memory, etc.)**
