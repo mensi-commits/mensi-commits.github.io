@@ -3,7 +3,7 @@ title: 'Designing and Implementing a Virtual Machine in C'
 description: 'Designing and Implementing a Virtual Machine in C'
 date: 2026-03-17T14:25:00+01:00
 tags: ['Virtual Machine', 'VM']
-image: ../images/pwn.png
+image: ../images/virtual-machine.png
 authors: ['mensi']
 draft: false
 ---
