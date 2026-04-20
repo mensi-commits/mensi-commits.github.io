@@ -3,7 +3,7 @@ title: 'Designing and Implementing a Virtual Machine in C'
 description: 'Designing and Implementing a Virtual Machine in C'
 date: 2026-03-17T14:25:00+01:00
 tags: ['Virtual Machine', 'VM']
-image: ../images/virtual-machine.png
+image: ../assets/posts/Designing and Implementing a Virtual Machine in C/virtual-machine.png
 authors: ['mensi']
 draft: false
 ---
@@ -22,7 +22,7 @@ From the beginning, I wanted to keep the architecture clean and separated. The a
 
 That naturally led to this structure:
 
-![Alt text](src/content/blog/images/assets/posts/VM-design-and-implement/1.png)
+![Alt text](<../assets/posts/Designing and Implementing a Virtual Machine in C/1.png>)
 
 This separation ended up being one of the most important design decisions. It made the system easier to reason about and easier to extend. If something breaks, I know exactly which layer to look at.
 
@@ -32,7 +32,7 @@ At the core of TIM is a single structure: `Machine`.
 
 Everything lives inside it, the stack, registers, memory, instructions, and even the table of native functions. I like thinking of it as the “state of the universe” for the VM. The execution loop just mutates this state over and over.
 
-![Alt text](src/content/blog/images/assets/posts/VM-design-and-implement/2.png)
+![Alt text](<../assets/posts/Designing and Implementing a Virtual Machine in C/2.png>)
 
 One thing I spent time on was how to represent values. I didn’t want separate systems for integers, floats, and other types, so I used a `Word` union combined with a `DataType` enum. That way, the VM can carry different types around while still knowing what they are.
 
@@ -54,7 +54,7 @@ I didn’t want it to be just arithmetic. I wanted it to feel like a real machin
 
 Here’s roughly how I think about the instruction categories:
 
-![Alt text](src/content/blog/images/assets/posts/VM-design-and-implement/3.png)
+![Alt text](<../assets/posts/Designing and Implementing a Virtual Machine in C/3.png>)
 
 The goal wasn’t to make it huge, but to make it expressive enough to run meaningful programs.
 
@@ -64,7 +64,7 @@ At the end of the day, everything comes down to a loop.
 
 Load the bytecode, read the next instruction, execute it, update the machine, and repeat.
 
-![Alt text](src/content/blog/images/assets/posts/VM-design-and-implement/4.png)
+![Alt text](<../assets/posts/Designing and Implementing a Virtual Machine in C/4.png>)
 
 There’s nothing fancy about the loop itself. The interesting part is everything it touches. Every instruction changes the state in some way, and over time those changes produce the behavior of the program.
 

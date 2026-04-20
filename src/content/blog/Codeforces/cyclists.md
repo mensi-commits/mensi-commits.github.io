@@ -2,16 +2,16 @@
 title: 'Cyclists – Codeforces Round 1086 (Div. 2) Writeup'
 description: 'Cyclists Problem from Codeforces'
 date: 2026-03-17T14:25:00+01:00
-tags: ['codeforces', 'competitive programming']
+tags: ['CP', 'Competitive Programming']
 authors: ['mensi']
-image: ../images/cyclists.png
+image: ../assets/posts/Codeforces/cyclists/cyclists.png
 draft: false
 maths: true
 ---
 
 # **Cyclists – Codeforces Round 1086 (Div. 2) Writeup**
 
-![Alt text](src/content/blog/images/assets/posts/codeforces/cyclists/1.png)
+![Alt text](../assets/posts/Codeforces/cyclists/1.png)
 
 ### Problem Summary
 
@@ -44,7 +44,7 @@ We are given multiple test cases. For each, we must determine the **maximum time
 
 ### Step-by-Step Solution
 
-![Alt text](src/content/blog/images/assets/posts/codeforces/cyclists/2.png)
+![Alt text](../assets/posts/Codeforces/cyclists/2.png)
 
 1. Read **t** test cases.
 2. For each test case:

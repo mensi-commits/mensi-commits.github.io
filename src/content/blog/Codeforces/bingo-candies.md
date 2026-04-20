@@ -2,16 +2,16 @@
 title: 'Bingo Candies – Codeforces Round 1086 (Div. 2) Writeup'
 description: 'Bingo Candies Problem from Codeforces'
 date: 2026-03-17T14:25:00+01:00
-tags: ['codeforces', 'competitive programming']
+tags: ['CP', 'competitive programming']
 authors: ['mensi']
-image: ../images/bingo-candies.png
+image: ../assets/posts/Codeforces/bingo-candies/bingo-candies.png
 draft: false
 maths: true
 ---
 
 # **Bingo Candies – Codeforces Round 1086 (Div. 2) Writeup**
 
-![Alt text](src/content/blog/images/assets/posts/codeforces/bingo-candies/1.png)
+![Alt text](../assets/posts/Codeforces/bingo-candies/1.png)
 
 ## **Problem Summary**
 
@@ -61,7 +61,7 @@ Let $x$ be the color with the **maximum number of candies**, denoted $a$.
 
 ## **Step-by-Step Solution**
 
-![Alt text](src/content/blog/images/assets/posts/codeforces/bingo-candies/3.png)
+![Alt text](../assets/posts/Codeforces/bingo-candies/3.png)
 
 1. Read input for $t$ test cases.
 2. For each test case:
