@@ -32,12 +32,8 @@ export const NAV_LINKS: SocialLink[] = [
 
 export const SOCIAL_LINKS: SocialLink[] = [
   {
-    href: 'https://github.com/hxuu',
+    href: 'https://github.com/mensi-commits',
     label: 'GitHub',
-  },
-  {
-    href: 'https://twitter.com/hxuu0',
-    label: 'Twitter',
   },
   {
     href: 'https://www.youtube.com/@dexter-2425',
