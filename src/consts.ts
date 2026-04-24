@@ -46,6 +46,12 @@ export const SOCIAL_LINKS: SocialLink[] = [
   {
     href: 'mailto:mensimohamedamine25@gmail.com',
     label: 'Email',
+    
+  },
+  {
+    href: 'https://codeforces.com/profile/mensi-solves',
+    label: 'Codeforces',
+    
   },
   {
     href: '/rss.xml',
@@ -60,5 +66,6 @@ export const ICON_MAP: IconMap = {
   Youtube: 'lucide:youtube',
   Twitter: 'lucide:twitter',
   Email: 'lucide:mail',
+  Codeforces: 'lucide:bug',
   RSS: 'lucide:rss',
 }
