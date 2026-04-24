@@ -50,6 +50,8 @@ $$
 
 If no such $n, m$ exist, output $-1$.
 
+![Alt text](../assets/codeforces/grid-l/3.png)
+
 ---
 
 ## **Main Observation**
