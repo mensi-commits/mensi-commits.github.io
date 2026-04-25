@@ -9,7 +9,7 @@ draft: false
 maths: true
 ---
 
-# HTB DevArea — Full Writeup with Dead Ends
+# HTB DevArea : Full Writeup with Dead Ends
 
 ## Introduction
 
