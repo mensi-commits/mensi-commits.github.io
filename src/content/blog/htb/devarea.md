@@ -1264,14 +1264,3 @@ I spent time trying to get root from Hoverfly after I already had a user shell. 
 8. `sudo -l` revealed `syswatch.sh` root execution
 9. SysWatch/system binary abuse led to root
 10. `root.txt` was obtained
-
----
-
-If you want, I can turn this into a **polished blog post format** with:
-
-- title
-- short intro
-- subsections
-- code blocks
-- “Lessons Learned” section
-- and a clean ending for your website.
