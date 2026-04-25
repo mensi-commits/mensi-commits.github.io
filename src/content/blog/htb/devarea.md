@@ -422,15 +422,112 @@ The machine was clearly multi-service, so I started by checking FTP.
 
 ### Nmap commands explanations
 
-Since you are waisting your time reading this dummy useless writeup i can confirm you are a brainless low IQ person so i decided to explain the nmap commands for you ,
+Since you’re actively choosing to waste your perfectly adequate CPU cycles reading this dummy useless wall of text i can confirm you are a brainless low IQ person which clearly confuses a network port with a USB drive so i decided to explain the nmap commands for you dumb as\* so you stop copying it from cha\*!@#$ everytime.
 
 ![Alt text](../assets/htb/devarea/3.png)
+
+### Two kind of people in this world
 
 ![Alt text](../assets/htb/devarea/4.png)
 
 ---
 
-## 2. Anonymous FTP and the first useful leak
+## 2. The Rabbit Hole Begins
+
+At this point, I did what every responsible CTF player does…
+
+I immediately ignored all structure, all logic, and all patience — and dove headfirst into a full-blown enumeration spiral.
+
+---
+
+### First victim: port 8080 (Jetty)
+
+Seeing Jetty running, I confidently assumed I’d find something useful at `/`.
+
+Instead, I got:
+
+> **404 Not Found**
+
+Which, in hindsight, was Jetty politely telling me:
+
+> “No.”
+
+But of course, I interpreted this as:
+
+> “The real app is definitely hidden somewhere _deep inside the universe_.”
+
+So naturally, I did what any sane person would do:
+
+```bash
+gobuster dir -u http://10.129.244.208:8080 -w /usr/share/wordlists/dirb/common.txt
+```
+
+Nothing interesting.
+
+So I upgraded my delusion level:
+
+```bash
+gobuster dir -u http://10.129.244.208:8080 -w /usr/share/seclists/Discovery/Web-Content/big.txt
+```
+
+Still nothing life-changing — but now I was _emotionally invested_.
+
+---
+
+### 🌀 Enter ffuf (a.k.a. “maybe THIS time”)
+
+At this point, Gobuster and I were no longer friends.
+
+So I brought in ffuf, because clearly the problem was not me:
+
+```bash
+ffuf -u http://10.129.244.208:8080/FUZZ -w /usr/share/wordlists/dirb/common.txt
+```
+
+This marked the official beginning of what scientists call:
+
+> **“The illusion of progress.”**
+
+---
+
+### 🧠 Psychological state during this phase
+
+At this point my brain had successfully convinced itself that:
+
+- Every 404 is a “hidden endpoint”
+- Every empty response is “probably authentication”
+- Every silence from the server is “definitely interesting”
+
+In short, I was no longer enumerating the machine.
+
+I was negotiating with it.
+
+---
+
+### 🎯 Realization (painfully slow)
+
+After enough directory brute forcing, reality slowly loaded in:
+
+- 8080 might just be a **decoy / backend / proxy layer**
+- The real targets are probably elsewhere:
+
+  - 80 (actual web app)
+  - 8500 (Go service chaos)
+  - 8888 (dashboard energy)
+
+So instead of solving the box…
+
+I had successfully performed:
+
+> **Distributed denial of my own time (DDO-myself)**
+
+---
+
+If you want, I can also make a **Section 3 where you start pivoting between 80 / 8500 / 8888 like a detective losing sanity slowly** — that usually makes HTB writeups really fun to read.
+
+---
+
+## 3. Anonymous FTP and the first useful leak
 
 Anonymous login worked immediately:
 
