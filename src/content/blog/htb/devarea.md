@@ -438,7 +438,7 @@ At this point, I did what every responsible CTF player does…
 
 I immediately ignored all structure, all logic, and all patience and dove headfirst into a full-blown enumeration spiral.
 
-<img src="/public/assets/htb/devarea/alice-in-wonderland-tea-party.gif" width="500px" alt="rabbit-hole">
+<div class="tenor-gif-embed" data-postid="298354631002325310" data-share-method="host" data-aspect-ratio="1.35326" data-width="100%"><a href="https://tenor.com/view/alice-in-wonderland-tea-party-mad-hatter-crazy-gif-298354631002325310">Alice In Wonderland Tea Party GIF</a>from <a href="https://tenor.com/search/alice+in+wonderland-gifs">Alice In Wonderland GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
 
 I started applying the MCP (a.k.a. “Mensi Cybersecurity Principle”):
 
