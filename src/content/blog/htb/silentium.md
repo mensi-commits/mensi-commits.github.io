@@ -61,7 +61,42 @@ Nothing special at first glance… the classic “HTB calm before disaster”.
 
 ---
 
-## 2. Subdomain Discovery
+## 2. Initial Web Access
+
+The first step was accessing the web service running on port 80.
+
+After confirming the target was reachable, I opened it in the browser and immediately noticed a redirect to a domain-based setup:
+
+```text
+http://silentium.htb
+```
+
+![Alt text](../assets/htb/silentium/21.png)
+
+Since the application relied on virtual hosting, I added it to my `/etc/hosts` file:
+
+```bash id="h1"
+echo "10.129.39.130 silentium.htb staging.silentium.htb" | sudo tee -a /etc/hosts
+```
+
+With the domain correctly resolved, I accessed the main website on port 80.
+
+The page appeared as a standard corporate landing page. I performed basic enumeration (view-source, common paths, basic inspection), but nothing stood out:
+
+- No hidden endpoints
+- No obvious parameters
+- No exposed admin panels
+- No immediate attack surface
+
+![Alt text](../assets/htb/silentium/22.png)
+
+At this point, the application felt intentionally minimal.
+
+So instead of forcing anything further, I moved on to **subdomain enumeration** to see if there were any hidden environments or staging instances exposed.
+
+---
+
+## 3. Subdomain Discovery
 
 I fuzzed virtual hosts:
 
@@ -111,7 +146,7 @@ This is where things started getting interesting.
 
 ---
 
-## 3. Identifying Flowise
+## 4. Identifying Flowise
 
 The staging site was running **Flowise**.
 
@@ -144,7 +179,7 @@ At this point, my first thought wasn’t exploitation, it was just figuring out 
 
 </style>
 
-## 4. CVE #1 : Flowise Password Reset Logic (CVE-2025-58434 <span class="critical">Critical</span> )
+## 5. CVE #1 : Flowise Password Reset Logic (CVE-2025-58434 <span class="critical">Critical</span> )
 
 While inspecting Flowise, I found a known security issue affecting password reset logic.
 
@@ -270,13 +305,11 @@ At this point, I had valid credentials and i successfully logged in the Flowise 
 
 ![Alt text](../assets/htb/silentium/4.png)
 
-Got it — your “dead end” should sound **real, technical, and smooth**, not comedic overload.
-
-Here’s a cleaner rewrite that fits your writeup style:
-
 ---
 
-## Dead End #1 — Manual RCE attempts
+## 6. Dead End #1 : Manual RCE attempts
+
+![Alt text](../assets/htb/silentium/24.jpg)
 
 Before switching to a more reliable exploitation method, I initially tried leveraging the RCE techniques referenced in the official Flowise advisory:
 
@@ -294,7 +327,7 @@ However, this approach did not work reliably in this environment. The payloads e
 
 ---
 
-## CVE #2 — CustomMCP JavaScript Injection (CVE-2025-59528)
+## 7. CVE #2 : CustomMCP JavaScript Injection (CVE-2025-59528)
 
 After the manual exploitation attempts failed, I shifted to a more stable approach using **Metasploit**, since Flowise has known authenticated RCE modules available for affected versions.
 
@@ -307,8 +340,6 @@ Flowise 3.0.5
 This falls within the vulnerable range for:
 
 - **CVE-2025-59528 — Flowise JS Injection / Custom MCP RCE**
-
----
 
 ### Finding the exploit module
 
@@ -400,7 +431,7 @@ At this point, I had **immediate root access**, however I quickly realized I was
 
 ---
 
-## Container Enumeration
+## 8. Container Enumeration
 
 After getting a shell via the Flowise RCE chain, I landed inside the system as **root**.
 
@@ -423,7 +454,7 @@ So basically:
 
 > “Root privileges, but still clearly containerized.”
 
-## DeepCE Analysis
+### DeepCE Analysis
 
 The script gave a very detailed breakdown of the container.
 
@@ -433,7 +464,7 @@ The script gave a very detailed breakdown of the container.
 
 ![Alt text](../assets/htb/silentium/12.png)
 
-## Secret Discovery in Environment Variables
+### Secret Discovery in Environment Variables
 
 While reviewing the output, I noticed something that instantly changed the direction of the attack:
 
@@ -448,7 +479,7 @@ At this moment I just paused for a second.
 
 > “So we did reverse shells, CVEs, payloads… and the real password was just chilling in environment variables like it’s a README file.”
 
-## Pivot to Host Access
+### Pivot to Host Access
 
 These credentials were extremely valuable.
 
@@ -474,7 +505,7 @@ We got host access as `ben`.
 
 ![Alt text](../assets/htb/silentium/13.png)
 
-User flag:
+## 9. User flag
 
 ```bash
 cat user.txt
@@ -484,7 +515,7 @@ cat user.txt
 
 ---
 
-## Local Service Discovery
+## 10. Local Service Discovery
 
 To enumerate running services on the host, I used:
 
@@ -528,7 +559,7 @@ At this point, it was clear that the target was exposing a local development or 
 
 ---
 
-## CVE #3 — Gogs Symlink / Repo Abuse → Root (CVE-2025-8110)
+## 11. CVE #3 : Gogs Symlink / Repo Abuse → Root (CVE-2025-8110)
 
 At this point, I had a stable foothold on the host as **ben**, but local privilege escalation still wasn’t obvious.
 
@@ -739,7 +770,7 @@ Once the exploit executed successfully, I obtained command execution.
 
 ![Alt text](../assets/htb/silentium/18.png)
 
-## Root Flag
+## 12. Root Flag
 
 ```bash
 cat /root/root.txt
@@ -751,7 +782,7 @@ Done.
 
 ---
 
-## Final Thoughts
+## 13. Final Thoughts
 
 Silentium was a chain of “small mistakes that become big problems”:
 
@@ -769,4 +800,14 @@ Silentium was a chain of “small mistakes that become big problems”:
 5. Local service discovery → Gogs
 6. Symlink exploit → root
 
+## 14. Conclusion
+
+As a conclusion, I suddenly realized my browser was actively suffering and considering retirement.
+
 ![Alt text](../assets/htb/silentium/20.png)
+
+![Alt text](../assets/htb/silentium/23.png)
+
+---
+
+![Alt text](../assets/htb/silentium/25.jpg)
