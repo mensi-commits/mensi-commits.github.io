@@ -803,7 +803,7 @@ Done.
 
 ---
 
-## 13. Final Thoughts
+## 14. Final Thoughts
 
 Silentium was a chain of “small mistakes that become big problems”:
 
