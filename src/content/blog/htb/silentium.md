@@ -11,8 +11,6 @@ maths: true
 
 # Silentium : Hack The Box Writeup
 
-.
-
 Silentium was one of those machines that looks simple at first (just 80 and 22), but slowly turns into a chain of _“wait… this is also vulnerable?”_ moments.
 
 It ended up being a mix of:
