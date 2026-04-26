@@ -1,7 +1,7 @@
 ---
 title: 'Données & Entreprises : Scénario de fonctionnement (SaaS CRM)'
 description: 'Données & Entreprises : Scénario de fonctionnement (SaaS CRM)'
-date: 2026-04-26T12:00:00+01:00
+date: 2026-04-26T09:00:00+01:00
 tags: ['SaaS CRM']
 authors: ['mensi']
 image: ../assets/ensit-academic-security-projet/1.png
@@ -391,7 +391,7 @@ Deux choix :
 
 ---
 
-## B) Conception sécurité (contrôles obligatoires)
+# B) Conception sécurité (contrôles obligatoires)
 
 ### 1) Authentification (Authentication)
 
