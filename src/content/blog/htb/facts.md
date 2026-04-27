@@ -217,6 +217,8 @@ I ran `ffuf` to enumerate hidden directories:
 ffuf -u http://facts.htb/FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -t 50
 ```
 
+![Alt text](../assets/htb/facts/10.png)
+
 After a bit of brute-forcing (and watching the terminal scroll like a slot machine), an interesting endpoint showed up:
 
 ```text
@@ -233,23 +235,7 @@ Opening it in the browser revealed the admin login page, confirming that we had 
 
 This led directly to the next stage of enumeration.
 
-![Alt text](../assets/htb/facts/8.png)
-
----
-
-## 5. Admin Panel Discovery
-
-We find:
-
-```
-/admin/login
-/admin/search?q=
-```
-
-At this point we think:
-“Nice, maybe SQLi, maybe auth bypass, maybe pain.”
-
-But no — it’s still NoSQL land.
+![Alt text](../assets/htb/facts/9.png)
 
 ---
 
