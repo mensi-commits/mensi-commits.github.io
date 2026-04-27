@@ -840,3 +840,5 @@ cat /root/root.txt
 Root flag retrieved successfully.
 
 Machine fully compromised.
+
+![Alt text](../assets/htb/facts/29.jpg)
