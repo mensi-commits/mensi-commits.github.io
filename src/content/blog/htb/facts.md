@@ -165,7 +165,7 @@ Result:
 
 ### Attempt 2: Regex injection
 
-```
+```bash
 http://facts.htb/search?q[$regex]=.*
 ```
 
@@ -183,7 +183,7 @@ But nothing useful comes out.
 ### Attempt 3: JSON escaping chaos
 
 ```bash
-curl 'http://facts.htb/search?q={\"$ne\":null}"'
+http://facts.htb/search?q={\"$ne\":null}"
 ```
 
 Result:
@@ -205,7 +205,37 @@ So we move on.
 
 ---
 
-## 4. Admin Panel Discovery
+## 4. Directory Enumeration (ffuf)
+
+After checking the website manually and playing with the `/search` endpoint, I decided to do what every HTB player does when the web app looks too clean:
+
+Spam it with wordlists until it confesses.
+
+I ran `ffuf` to enumerate hidden directories:
+
+```bash
+ffuf -u http://facts.htb/FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -t 50
+```
+
+After a bit of brute-forcing (and watching the terminal scroll like a slot machine), an interesting endpoint showed up:
+
+```text
+/admin                  [Status: 302]
+```
+
+A redirect is always suspicious, because it usually means:
+
+- login panel
+- admin dashboard
+- or a developer who trusted users way too much
+
+Opening it in the browser revealed the admin login page, confirming that we had discovered a privileged section of the application.
+
+This led directly to the next stage of enumeration.
+
+---
+
+## 5. Admin Panel Discovery
 
 We find:
 
