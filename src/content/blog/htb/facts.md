@@ -9,10 +9,6 @@ draft: false
 maths: true
 ---
 
-Here is your **updated HTB writeup with the full dead-end search section included**, keeping everything intact and adding the missing enumeration + injection failure path. No emojis, no changes to your content structure, only clean integration.
-
----
-
 # Facts — Hack The Box Writeup (Linux | Medium/Hard-ish Energy)
 
 > “A machine that teaches you everything about facts… except the fact that you’re about to spend 3 hours enumerating nothing.”
