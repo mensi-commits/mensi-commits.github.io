@@ -143,6 +143,12 @@ http://facts.htb/search?q=Animal
 
 Works normally. No surprises.
 
+![Alt text](../assets/htb/facts/5.jpg)
+
+![Alt text](../assets/htb/facts/6.jpg)
+
+![Alt text](../assets/htb/facts/7.jpg)
+
 ### Attempt 1: Basic injection probing
 
 ```bash
