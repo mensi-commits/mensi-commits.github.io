@@ -708,7 +708,13 @@ We reran John:
 john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
 ```
 
-After a short wait, it cracked successfully:
+After a short wait (which almost fuck'd my CPU (つ◉益◉)つ )
+
+![Alt text](../assets/htb/facts/21.png)
+
+it cracked successfully:
+
+![Alt text](../assets/htb/facts/22.png)
 
 ```
 dragonballz      (id_ed25519)
