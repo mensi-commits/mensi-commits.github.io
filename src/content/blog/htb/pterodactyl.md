@@ -1,0 +1,10 @@
+---
+title: 'Pterodactyl - Hack The Box Writeup (Linux, Medium)'
+description: 'Pterodactyl HTB Machine Writeup - exploitation walkthrough and key steps'
+date: 2026-04-27T00:00:00+01:00
+tags: ['HTB', 'Linux', 'Writeup', 'Medium']
+authors: ['mensi']
+
+draft: false
+maths: true
+---
