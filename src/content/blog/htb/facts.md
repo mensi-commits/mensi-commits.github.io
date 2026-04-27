@@ -121,9 +121,11 @@ We are greeted with:
 
 Classic deception arc.
 
+![Alt text](../assets/htb/facts/3.png)
+
 ---
 
-## Dead End: Search Parameter Abuse Attempts
+## 3. Dead End: Search Parameter Abuse Attempts
 
 This is where the suffering begins.
 
