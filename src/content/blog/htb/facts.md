@@ -129,7 +129,7 @@ Classic deception arc.
 
 This is where the suffering begins.
 
-<img src="/assets/htb/facts/4.jpg" alt="suffer" width="600px">
+<img src="/assets/htb/facts/4.jpg" alt="suffer" width="500px">
 
 I immediately assume:
 
@@ -192,7 +192,7 @@ Result:
 - Still no data leak
 - Just server confusion and sadness
 
-<img src="/assets/htb/facts/18.jpg" alt="suffer" width="600px">
+<img src="/assets/htb/facts/18.jpg" alt="suffer" width="400px">
 
 ### Final realization
 
@@ -501,6 +501,22 @@ We configure AWS CLI:
 
 ```bash
 aws configure
+```
+
+### Output
+
+```bash
+
+┌──(mensi㉿kali)-[~/Desktop]
+└─$ aws configure
+AWS Access Key ID [None]: AKIAD9A2F65061D176AF
+AWS Secret Access Key [None]: a46pdJHQvIaJtTiT99lHFX3i9m2wOPXrSoO6KLJC
+Default region name [None]:
+Default output format [None]:
+
+┌──(mensi㉿kali)-[~/Desktop]
+└─$
+
 ```
 
 Then:
