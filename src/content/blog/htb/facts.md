@@ -219,7 +219,7 @@ ffuf -u http://facts.htb/FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-
 
 ![Alt text](../assets/htb/facts/10.png)
 
-After a bit of brute-forcing (and watching the terminal scroll like a slot machine), an interesting endpoint showed up:
+After a bit of brute-forcing, an interesting endpoint showed up:
 
 ```text
 /admin                  [Status: 302]
@@ -236,6 +236,24 @@ Opening it in the browser revealed the admin login page, confirming that we had 
 This led directly to the next stage of enumeration.
 
 ![Alt text](../assets/htb/facts/9.png)
+
+---
+
+## 5. Admin Login & CMS Identification
+
+After discovering `/admin`, I followed the redirect and landed directly on the **admin login page**.
+
+At first glance it looked like a normal authentication portal, offering both **Login** and **Register** options. Since credentials were not provided, I went for the classic HTB approach:
+
+If you can’t log in, just become a user.
+
+So I registered a new account and successfully logged in.
+
+While exploring the admin panel, I noticed something very useful in the page content and structure: the application was running **Camaleon CMS**. This was confirmed through visible references in the interface and CMS-specific routes, which instantly turned the situation from “random web app” into:
+
+> “Okay, now we’re dealing with something that probably has a CVE with my name on it.”
+
+This discovery was a key turning point, because identifying the CMS allowed me to search for known vulnerabilities and exploitation paths.
 
 ---
 
