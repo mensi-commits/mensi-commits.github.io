@@ -9,15 +9,22 @@ draft: false
 maths: true
 ---
 
-# Facts — Hack The Box Writeup (Linux | Medium/Hard-ish Energy)
+# Facts — Hack The Box Writeup (Linux, Easy)
 
-> “A machine that teaches you everything about facts… except the fact that you’re about to spend 3 hours enumerating nothing.”
+> “A machine that teaches you everything about facts… except the fact that most of the answers were basically handed to you.”
 
 ---
 
 ## 1. Initial Recon
 
 We start with the usual ritual sacrifice to Nmap:
+
+### Output
+
+```bash
+
+
+```
 
 ```bash
 nmap -p- -sS -sV --min-rate 10000 --open -n -Pn 10.129.41.13
