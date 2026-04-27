@@ -261,9 +261,11 @@ While exploring the admin panel, I noticed something very useful in the page con
 
 This discovery was a key turning point, because identifying the CMS allowed me to search for known vulnerabilities and exploitation paths.
 
+![Alt text](../assets/htb/facts/13.png)
+
 ---
 
-## The Plot Twist: MinIO Appears
+## 6. The Plot Twist: MinIO Appears
 
 Port 54321 reveals MinIO S3-compatible storage.
 
