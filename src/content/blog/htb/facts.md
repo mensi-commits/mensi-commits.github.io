@@ -192,7 +192,7 @@ Result:
 - Still no data leak
 - Just server confusion and sadness
 
-![Alt text](../assets/htb/facts/18.jpg)
+<img src="/assets/htb/facts/18.jpg" alt="suffer" width="600px">
 
 ### Final realization
 
