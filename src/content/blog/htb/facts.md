@@ -233,6 +233,8 @@ Opening it in the browser revealed the admin login page, confirming that we had 
 
 This led directly to the next stage of enumeration.
 
+![Alt text](../assets/htb/facts/8.png)
+
 ---
 
 ## 5. Admin Panel Discovery
