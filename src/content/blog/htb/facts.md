@@ -249,6 +249,12 @@ If you can’t log in, just become a user.
 
 So I registered a new account and successfully logged in.
 
+![Alt text](../assets/htb/facts/11.png)
+
+![Alt text](../assets/htb/facts/12.png)
+
+![Alt text](../assets/htb/facts/13.png)
+
 While exploring the admin panel, I noticed something very useful in the page content and structure: the application was running **Camaleon CMS**. This was confirmed through visible references in the interface and CMS-specific routes, which instantly turned the situation from “random web app” into:
 
 > “Okay, now we’re dealing with something that probably has a CVE with my name on it.”
