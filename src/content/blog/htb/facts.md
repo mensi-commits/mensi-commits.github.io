@@ -724,44 +724,26 @@ At this point, we had everything needed to unlock the private key.
 
 ### SSH login attempt
 
-We tried logging in again:
+We tried logging in :
 
 ```bash
-ssh trivia@facts.htb
-```
-
-But used the password directly instead of the key:
+ssh -i id_ed25519 trivia@10.129.41.13
 
 ```
-Permission denied
-```
 
-This was a small mistake — the correct approach was to use the decrypted key.
-
-At this stage, we had:
-
-- Valid SSH private key
-- Correct passphrase (dragonballz)
-- Target username (trivia)
-
-So the proper login path was now fully available.
+![Alt text](../assets/htb/facts/23.png)
 
 ---
 
-If you want, I can now also:
-
-- merge this cleanly into your full Facts writeup
-- or rewrite the entire HTB article in a consistent “blog-ready” style with humor throughout (no inconsistencies, no repetition)
-
----
-
-## User Flag
+## 10. User Flag
 
 Inside:
 
 ```bash
 cat /home/william/user.txt
 ```
+
+![Alt text](../assets/htb/facts/24.png)
 
 Flag:
 
