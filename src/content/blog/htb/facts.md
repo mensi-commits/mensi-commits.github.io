@@ -192,6 +192,8 @@ Result:
 - Still no data leak
 - Just server confusion and sadness
 
+![Alt text](../assets/htb/facts/18.jpg)
+
 ### Final realization
 
 The search endpoint is:
@@ -480,7 +482,10 @@ The script successfully authenticated, temporarily promoted the user role, and e
 s3 access key: AKIAD9A2F65061D176AF
 s3 secret key: a46pdJHQvIaJtTiT99lHFX3i9m2wOPXrSoO6KLJC
 s3 endpoint: http://localhost:54321
+
 ```
+
+![Alt text](../assets/htb/facts/17.jpg)
 
 This was a major breakthrough because Camaleon CMS was configured to store uploaded content using an **S3-compatible backend**, and in this case that backend was **MinIO**, running locally on port `54321`.
 
@@ -490,7 +495,7 @@ At this point, the machine basically hands us the keys and says “please leave 
 
 ---
 
-## MinIO Exploitation
+## 7. MinIO Exploitation
 
 We configure AWS CLI:
 
