@@ -464,13 +464,15 @@ if args.revert:
 
 This exploit allows a low-privileged authenticated user to escalate their role to admin, extract sensitive configuration, and revert back to normal, leaving the system thinking everything is fine (like a polite hacker).
 
-Since I already had a registered account (`mensi:mensi`), exploitation was straightforward.
+Since I already had a registered account (`mensi-admin:mensi-admin`), exploitation was straightforward.
 
 We run:
 
 ```bash
-python3 CVE-2025-2304.py -u http://facts.htb -U mensi -P mensi -e -r
+python3 CVE-2025-2304.py -u http://facts.htb -U mensi-admin -P mensi-admin -e -r
 ```
+
+![Alt text](../assets/htb/facts/16.png)
 
 The script successfully authenticated, temporarily promoted the user role, and extracted the S3 configuration used by the CMS:
 
