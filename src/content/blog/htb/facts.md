@@ -129,7 +129,9 @@ Classic deception arc.
 
 This is where the suffering begins.
 
-We immediately assume:
+![Alt text](../assets/htb/facts/3.png)
+
+I immediately assume:
 
 > “search = injectable = life is easy”
 
@@ -140,8 +142,6 @@ http://facts.htb/search?q=Animal
 ```
 
 Works normally. No surprises.
-
----
 
 ### Attempt 1: Basic injection probing
 
@@ -154,8 +154,6 @@ Result:
 - Server behaves inconsistently
 - No clear output
 - No bypass
-
----
 
 ### Attempt 2: Regex injection
 
@@ -174,8 +172,6 @@ So we think:
 
 But nothing useful comes out.
 
----
-
 ### Attempt 3: JSON escaping chaos
 
 ```bash
@@ -187,8 +183,6 @@ Result:
 - Still no bypass
 - Still no data leak
 - Just server confusion and sadness
-
----
 
 ### Final realization
 
@@ -203,7 +197,7 @@ So we move on.
 
 ---
 
-## Admin Panel Discovery
+## 4. Admin Panel Discovery
 
 We find:
 
