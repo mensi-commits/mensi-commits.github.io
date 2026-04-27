@@ -152,7 +152,7 @@ Works normally. No surprises.
 ### Attempt 1: Basic injection probing
 
 ```bash
-curl 'http://facts.htb/search?q[$ne]=null'
+http://facts.htb/search?q[$ne]=null
 ```
 
 Result:
@@ -160,6 +160,8 @@ Result:
 - Server behaves inconsistently
 - No clear output
 - No bypass
+
+![Alt text](../assets/htb/facts/8.png)
 
 ### Attempt 2: Regex injection
 
