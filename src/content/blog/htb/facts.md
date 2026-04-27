@@ -4,7 +4,7 @@ description: 'Facts HTB Machine Writeup - exploitation walkthrough and key steps
 date: 2026-04-27T00:00:00+01:00
 tags: ['HTB', 'Linux', 'Writeup', 'Easy']
 authors: ['mensi']
-image: ../assets/htb/facts/1.png
+image: ../assets/htb/devarea/1.png
 draft: false
 maths: true
 ---
@@ -15,7 +15,7 @@ maths: true
 
 ---
 
-## Initial Recon
+## 1. Initial Recon
 
 We start with the usual ritual sacrifice to Nmap:
 
