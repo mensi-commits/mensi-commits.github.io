@@ -131,7 +131,7 @@ This is where the suffering begins.
 
 ![Alt text](../assets/htb/facts/4.jpg)
 
-<img src="../assets/htb/facts/4.jpg" alt="suffer" width="700px">
+<img src="/assets/htb/facts/4.jpg" alt="suffer" width="700px">
 
 I immediately assume:
 
