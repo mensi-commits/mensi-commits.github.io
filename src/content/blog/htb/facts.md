@@ -612,7 +612,7 @@ Then:
 ssh -i id_ed25519 trivia@10.129.41.13
 ```
 
-..
+...
 We are in.
 
 ---
