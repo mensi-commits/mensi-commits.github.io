@@ -235,13 +235,13 @@ Opening it in the browser revealed the admin login page, confirming that we had 
 
 This led directly to the next stage of enumeration.
 
-![Alt text](../assets/htb/facts/9.png)
-
 ---
 
 ## 5. Admin Login & CMS Identification
 
 After discovering `/admin`, I followed the redirect and landed directly on the **admin login page**.
+
+![Alt text](../assets/htb/facts/9.png)
 
 At first glance it looked like a normal authentication portal, offering both **Login** and **Register** options. Since credentials were not provided, I went for the classic HTB approach:
 
