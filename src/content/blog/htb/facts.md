@@ -752,10 +752,6 @@ We are no longer “hackers”, we are “warehouse employees sorting AWS bucket
 
 ---
 
-Here is your **Section 11 (Privilege Escalation)** updated properly with the **sudo -l discovery step added first**, and keeping your flow consistent:
-
----
-
 ## 11. Privilege Escalation
 
 After gaining access as `trivia`, the first step is always the same: check what kind of damage sudo will politely allow us to do.
@@ -770,9 +766,7 @@ This reveals something immediately interesting:
 
 We are allowed to run:
 
-```bash id="d4n8qp"
-(ALL) NOPASSWD: /usr/bin/facter
-```
+![Alt text](../assets/htb/facts/26.png)
 
 At this point, no exploitation is needed yet, the system has already done the suspicious part for us by trusting `facter` with root privileges.
 
@@ -816,11 +810,13 @@ This time, instead of just printing system facts, the Ruby payload executes:
 root@facts:/home/trivia#
 ```
 
+![Alt text](../assets/htb/facts/27.png)
+
 We now have a root shell.
 
 ---
 
-### Root Cause
+## 12. Root Cause
 
 The issue comes from:
 
@@ -833,11 +829,13 @@ In short:
 
 > A trusted system utility becomes a root shell launcher through custom Ruby execution.
 
-### Root Flag
+### 13. Root Flag
 
 ```bash id="c8n1yx"
 cat /root/root.txt
 ```
+
+![Alt text](../assets/htb/facts/28.png)
 
 Root flag retrieved successfully.
 
