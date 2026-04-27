@@ -121,7 +121,7 @@ We are greeted with:
 
 Classic deception arc.
 
-![Alt text](../assets/htb/facts/3.png)
+![Alt text](../assets/htb/facts/3.jpg)
 
 ---
 
@@ -129,7 +129,7 @@ Classic deception arc.
 
 This is where the suffering begins.
 
-![Alt text](../assets/htb/facts/3.png)
+![Alt text](../assets/htb/facts/4.jpg)
 
 I immediately assume:
 
