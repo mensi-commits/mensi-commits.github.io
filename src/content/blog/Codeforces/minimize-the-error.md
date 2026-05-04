@@ -12,8 +12,6 @@ maths: true
 
 # **Minimize the Error – Codeforces Round 474 (Div. 2)**
 
-![Alt text](../assets/codeforces/minimize-error/1.png)
-
 ## **Problem Summary**
 
 We are given two arrays:
@@ -204,33 +202,103 @@ $$
 #include <stdio.h>
 #include <stdlib.h>
 
-// Declare a heap structure
+
 struct Heap {
     int* arr;
     int size;
     int capacity;
 };
-
 typedef struct Heap heap;
 
-// forward declarations
+typedef struct {
+    int a;
+    int b;
+    int diff;
+} Pair;
+
 heap* createHeap(int capacity, int* nums);
 void insertHelper(heap* h, int index);
 void maxHeapify(heap* h, int index);
 int extractMax(heap* h);
 void insert(heap* h, int data);
+void printHeap(heap* h);
+
+int cmp(const void *x, const void *y);
+
+int main()
+{
+    int n, k1, k2;
+    scanf("%d %d %d", &n, &k1, &k2);
+
+    int A[n], B[n], C[n];
+
+    for (int i = 0; i < n; i++)
+        scanf("%d", &A[i]);
+
+    for (int i = 0; i < n; i++)
+        scanf("%d", &B[i]);
+
+    Pair arr[n];
+
+    for (int i = 0; i < n; i++) {
+        arr[i].a = A[i];
+        arr[i].b = B[i];
+        arr[i].diff = abs(A[i] - B[i]);
+    }
+
+    qsort(arr, n, sizeof(Pair), cmp);
+
+    for (int i = 0; i < n; i++) {
+        A[i] = arr[i].a;
+        B[i] = arr[i].b;
+    }
+
+    for (int i = 0; i < n; i++) {
+        C[i] = arr[i].diff;
+    }
+
+    heap* h = createHeap(n, C);
+
+    int k = k1 + k2;
+
+    for (int i = 0; i < k; i++) {
+        int x = extractMax(h);
+        if (x > 0) x--;
+        else x++;
+
+        insert(h, x);
+    }
+
+
+    long long E = 0;
+
+    for (int i = 0; i < h->size; i++) {
+        long long x = h->arr[i];
+        E += x * x;
+    }
+
+    printf("%lld\n", E);
+
+    return 0;
+
+}
+
 
 // Create heap from array
 heap* createHeap(int capacity, int* nums)
 {
     heap* h = (heap*)malloc(sizeof(heap));
-    if (h == NULL) return NULL;
+    if (h == NULL) {
+        printf("Memory error\n");
+        return NULL;
+    }
 
     h->size = capacity;
     h->capacity = capacity;
 
     h->arr = (int*)malloc(capacity * sizeof(int));
     if (h->arr == NULL) {
+        printf("Memory error\n");
         free(h);
         return NULL;
     }
@@ -245,10 +313,12 @@ heap* createHeap(int capacity, int* nums)
     return h;
 }
 
+
 // Heapify bottom-up
 void insertHelper(heap* h, int index)
 {
-    if (index == 0) return;
+    if (index == 0)
+        return;
 
     int parent = (index - 1) / 2;
 
@@ -260,6 +330,7 @@ void insertHelper(heap* h, int index)
         insertHelper(h, parent);
     }
 }
+
 
 // Heapify top-down
 void maxHeapify(heap* h, int index)
@@ -283,11 +354,16 @@ void maxHeapify(heap* h, int index)
     }
 }
 
+
 // Extract maximum element
 int extractMax(heap* h)
 {
-    int deleteItem = h->arr[0];
+    if (h->size == 0) {
+        printf("Heap is empty.\n");
+        return -999;
+    }
 
+    int deleteItem = h->arr[0];
     h->arr[0] = h->arr[h->size - 1];
     h->size--;
 
@@ -295,54 +371,33 @@ int extractMax(heap* h)
     return deleteItem;
 }
 
+
 // Insert element into heap
 void insert(heap* h, int data)
 {
+    if (h->size >= h->capacity) {
+        printf("Heap is full.\n");
+        return;
+    }
+
     h->arr[h->size] = data;
     h->size++;
 
     insertHelper(h, h->size - 1);
 }
 
-int main()
+// Print heap array
+void printHeap(heap* h)
 {
-    int n, k1, k2;
-    scanf("%d %d %d", &n, &k1, &k2);
-
-    int A[n], B[n], C[n];
-
-    for (int i = 0; i < n; i++)
-        scanf("%d", &A[i]);
-
-    for (int i = 0; i < n; i++)
-        scanf("%d", &B[i]);
-
-    for (int i = 0; i < n; i++)
-        C[i] = abs(A[i] - B[i]);
-
-    heap* hC = createHeap(n, C);
-
-    int op = k1 + k2;
-
-    for (int i = 0; i < op; i++) {
-        int x = extractMax(hC);
-
-        if (x > 0) x--;
-        else x++;
-
-        insert(hC, x);
-    }
-
-    long long E = 0;
-
-    for (int i = 0; i < hC->size; i++) {
-        long long x = hC->arr[i];
-        E += x * x;
-    }
-
-    printf("%lld\n", E);
-
-    return 0;
+    for (int i = 0; i < h->size; i++)
+        printf("%d ", h->arr[i]);
+    printf("\n");
+}
+int cmp(const void *x, const void *y)
+{
+    Pair *p1 = (Pair *)x;
+    Pair *p2 = (Pair *)y;
+    return p1->diff - p2->diff;
 }
 ```
 
