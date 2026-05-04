@@ -12,6 +12,8 @@ maths: true
 
 # **Minimize the Error – Codeforces Round 474 (Div. 2)**
 
+![alt text](../assets/codeforces/minimize-error/1.png)
+
 ## **Problem Summary**
 
 We are given two arrays:
@@ -283,8 +285,6 @@ int main()
 
 }
 
-
-// Create heap from array
 heap* createHeap(int capacity, int* nums)
 {
     heap* h = (heap*)malloc(sizeof(heap));
@@ -313,8 +313,6 @@ heap* createHeap(int capacity, int* nums)
     return h;
 }
 
-
-// Heapify bottom-up
 void insertHelper(heap* h, int index)
 {
     if (index == 0)
@@ -331,8 +329,6 @@ void insertHelper(heap* h, int index)
     }
 }
 
-
-// Heapify top-down
 void maxHeapify(heap* h, int index)
 {
     int left = index * 2 + 1;
@@ -354,8 +350,6 @@ void maxHeapify(heap* h, int index)
     }
 }
 
-
-// Extract maximum element
 int extractMax(heap* h)
 {
     if (h->size == 0) {
@@ -371,8 +365,6 @@ int extractMax(heap* h)
     return deleteItem;
 }
 
-
-// Insert element into heap
 void insert(heap* h, int data)
 {
     if (h->size >= h->capacity) {
@@ -386,7 +378,6 @@ void insert(heap* h, int data)
     insertHelper(h, h->size - 1);
 }
 
-// Print heap array
 void printHeap(heap* h)
 {
     for (int i = 0; i < h->size; i++)
