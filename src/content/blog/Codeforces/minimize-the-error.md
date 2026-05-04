@@ -4,6 +4,7 @@ description: 'B. Minimize the error (Greedy + MaxHeap)'
 date: 2026-05-04T20:30:00+01:00
 tags: ['CP', 'competitive programming', 'greedy', 'data structures', 'heap']
 authors: ['mensi']
+image: ../assets/codeforces/minimize-error/2.png
 draft: false
 maths: true
 ---
@@ -391,6 +392,8 @@ int cmp(const void *x, const void *y)
     return p1->diff - p2->diff;
 }
 ```
+
+![alt text](../assets/codeforces/minimize-error/3.png)
 
 ---
 
