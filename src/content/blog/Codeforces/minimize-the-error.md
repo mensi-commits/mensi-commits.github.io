@@ -170,6 +170,8 @@ $$
 E = \sum d_i^2
 $$
 
+![alt text](../assets/codeforces/minimize-error/4.png)
+
 ---
 
 ## **Complexity Analysis**
