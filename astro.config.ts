@@ -19,7 +19,7 @@ import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  site: 'https://hxuu.github.io',
+  site: 'https://mensi.space',
   integrations: [
     expressiveCode({
       themes: ['github-light', 'github-dark'],
