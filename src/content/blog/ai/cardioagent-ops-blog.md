@@ -24,7 +24,7 @@ draft: false
 maths: true
 ---
 
-# I Gave AI a Stethoscope. It Asked for Six Docker Containers..
+# I Gave AI a Stethoscope. It Asked for Six Docker Containers.
 
 ![Hand-drawn neural network workflow](../assets/cardioagent-ops/CardioAgent-Ops_%20Complete%20AI%20Cardiology%20Platform.png)
 
